@@ -1,11 +1,7 @@
 "use client";
 
 import InputField from "@/ui/InputField";
-import SearchIcon from "@/assets/images/icon-search.svg";
 import ShowPasswordIcon from "@/assets/images/icon-show-password.svg";
-import ColorsDropdown from "@/ui/ColorsDropdown";
-import CategoriesDropdown from "@/ui/CategoriesDropdown";
-import Button from "@/ui/Button";
 
 export default function Home() {
   return (
