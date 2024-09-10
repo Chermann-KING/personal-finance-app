@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className={publicSans.className}>
         <div className="flex">
           {showSidebar && <Sidebar />}
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow bg-beige-100">{children}</main>
         </div>
       </body>
     </html>

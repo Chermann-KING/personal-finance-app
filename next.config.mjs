@@ -7,6 +7,9 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  images: {
+    domains: ["localhost"], // Ici tout domaine externe si nécessaire.
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
