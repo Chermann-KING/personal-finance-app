@@ -26,7 +26,7 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({
       <h1 className="text-preset-1 text-grey-900">Overview</h1>
 
       {/* items */}
-      <div className="grid grid-cols-3 gap-4 h-[119px]">
+      <div className="grid grid-cols-3 gap-6 h-[119px]">
         {/* current balance */}
         <div className="bg-grey-900 w-full p-6 rounded-xl">
           <h2 className="text-preset-4 text-white mb-3">Current Balance</h2>

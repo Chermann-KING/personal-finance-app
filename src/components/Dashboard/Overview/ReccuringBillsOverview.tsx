@@ -20,7 +20,7 @@ const ReccuringBillsOverview: React.FC<ReccuringBillsOverviewProps> = ({
   };
 
   return (
-    <div className="w-[428px] h-[327px] flex flex-col justify-between bg-white rounded-lg p-8 shadow">
+    <div className="w-[428px] h-[327px] flex flex-col justify-between bg-white rounded-lg p-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-preset-2 text-grey-900">Recurring Bills</h2>

@@ -28,7 +28,7 @@ const PotsOverview: React.FC<PotsOverviewProps> = ({ pots }) => {
   };
 
   return (
-    <div className="w-[608px] h-[218px] flex flex-col justify-between bg-white rounded-lg p-8 shadow">
+    <div className="w-[608px] h-[218px] flex flex-col justify-between bg-white rounded-lg p-8">
       {/* header */}
       <div className="flex justify-between items-center">
         <h2 className="text-preset-2 text-grey-900">Pots</h2>

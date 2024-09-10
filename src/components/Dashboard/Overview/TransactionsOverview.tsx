@@ -36,7 +36,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
   };
 
   return (
-    <div className="w-[608px] h-[519px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8 shadow">
+    <div className="w-[608px] h-[519px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8">
       {/* header */}
       <div className="flex justify-between items-center">
         <h2 className="text-preset-2 text-grey-900">Transactions</h2>
