@@ -4,6 +4,11 @@
         "income": 3814.25,
         "expenses": 1700.50
     },
+    "bills": {
+        "paid": 190.00,
+        "upcoming": 194.98,
+        "dueSoon": 59.98
+    },
     "transactions": [
         {
             "avatar": "./assets/images/avatars/emma-richardson.jpg",
