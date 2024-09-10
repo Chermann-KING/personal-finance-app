@@ -6,9 +6,10 @@ import TransactionsOverview from "@/components/Dashboard/Overview/TransactionsOv
 import BudgetOverview from "@/components/Dashboard/Overview/BudgetOverview";
 import PotsOverview from "@/components/Dashboard/Overview/PotsOverview";
 import ReccuringBillsOverview from "@/components/Dashboard/Overview/ReccuringBillsOverview";
+import { FinancialData, Budget, Transaction } from "@/types"; // Import des types
 
 // Simule l'API fetch pour obtenir les données du fichier JSON
-const fetchFinancialData = async () => {
+const fetchFinancialData = async (): Promise<FinancialData> => {
   const res = await fetch("/api/financialData");
   if (!res.ok) {
     throw new Error("Failed to fetch financial data");
@@ -17,7 +18,7 @@ const fetchFinancialData = async () => {
 };
 
 export default function OverviewPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<FinancialData | null>(null); // Typage approprié
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,11 +38,27 @@ export default function OverviewPage() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-full flex justify-center items-center text-preset-1 text-grey-900 font-semibold">
+        Loading...
+      </div>
+    );
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div className="min-h-full flex justify-center items-center text-preset-1 text-red font-semibold">
+        {error}
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-full flex justify-center items-center text-preset-1 text-grey-900 font-semibold">
+        No data available
+      </div>
+    );
   }
 
   return (
@@ -53,12 +70,12 @@ export default function OverviewPage() {
         expenses={data.balance.expenses}
       />
 
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"> */}
       <div className="mx-auto w-[1060px] flex justify-between">
         {/* Pots & Transactions */}
         <div className="flex flex-col gap-y-6">
           {/* Pots Overview */}
           <PotsOverview pots={data.pots} />
+
           {/* Recent Transactions */}
           <TransactionsOverview transactions={data.transactions.slice(0, 5)} />
         </div>
@@ -67,26 +84,28 @@ export default function OverviewPage() {
         <div className="flex flex-col gap-y-6">
           {/* Budget Overview */}
           <BudgetOverview
-            budgets={data.budgets.map((budget: any) => ({
+            budgets={data.budgets.map((budget: Budget) => ({
               category: budget.category,
               maximum: budget.maximum,
               spent: data.transactions
                 .filter(
-                  (transaction: any) => transaction.category === budget.category
+                  (transaction: Transaction) =>
+                    transaction.category === budget.category
                 )
                 .reduce(
-                  (acc: number, curr: any) =>
+                  (acc: number, curr: Transaction) =>
                     acc + (curr.amount < 0 ? -curr.amount : 0),
                   0
                 ),
               theme: budget.theme,
             }))}
           />
+
           {/* Reccuring Bills */}
           <ReccuringBillsOverview
-            paid={data?.bills?.paid || 0}
-            upcoming={data?.bills?.upcoming || 0}
-            dueSoon={data?.bills?.dueSoon || 0}
+            paid={data.bills.paid}
+            upcoming={data.bills.upcoming}
+            dueSoon={data.bills.dueSoon}
           />
         </div>
       </div>
