@@ -1,6 +1,13 @@
 import React from "react";
 import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  ChartData,
+  ChartOptions,
+} from "chart.js";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +35,8 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
   const spent = budgets.reduce((acc, budget) => acc + budget.spent, 0);
   const limit = budgets.reduce((acc, budget) => acc + budget.maximum, 0);
 
-  const data = {
+  // Typage des données du graphique
+  const data: ChartData<"doughnut", number[], string> = {
     labels: budgets.map((budget) => budget.category),
     datasets: [
       {
@@ -40,7 +48,8 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
     ],
   };
 
-  const options = {
+  // Typage du callback de tooltip
+  const options: ChartOptions<"doughnut"> = {
     cutout: "70%", // Pour créer un espace vide au centre
     plugins: {
       legend: {
@@ -48,8 +57,9 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
       },
       tooltip: {
         callbacks: {
-          label: (tooltipItem: any) => {
-            return `$${tooltipItem.raw.toFixed(2)}`;
+          label: function (tooltipItem) {
+            const value = tooltipItem.raw as number;
+            return `$${value.toFixed(2)}`;
           },
         },
       },
