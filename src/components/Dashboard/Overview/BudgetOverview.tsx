@@ -67,7 +67,7 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
   };
 
   return (
-    <div className="w-[428px] h-[410px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8 shadow">
+    <div className="w-[428px] h-[410px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-preset-2 text-grey-900">Budgets</h2>
