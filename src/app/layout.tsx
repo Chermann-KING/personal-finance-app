@@ -30,9 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={publicSans.className}>
-        <div className="flex">
-          {showSidebar && <Sidebar />}
-          <main className="flex-grow bg-beige-100">{children}</main>
+        <div className="flex h-full">
+          {showSidebar && (
+            <div className="h-full">
+              <Sidebar />
+            </div>
+          )}
+          <main className="flex-grow bg-beige-100 overflow-y-auto">
+            {children}
+          </main>
         </div>
       </body>
     </html>

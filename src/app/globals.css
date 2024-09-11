@@ -4,16 +4,71 @@
 
 
 /* Masquer la barre de défilement pour tous les navigateurs modernes */
-.no-scrollbar::-webkit-scrollbar {
+/* .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
 .no-scrollbar {
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
+} */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#__next {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+main {
+  flex-grow: 1;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+/* scrollbar */
+/* Personnalisation de la scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #201F24;
+  border-radius: 100px;
+  /* border: 3px solid transparent; */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3A383D;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: #2C2A2F;
+}
+
+/* Support pour Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #201F24 transparent;
+}
+
+/* end scrollbar */
 
 /* :root {
   --foreground-rgb: 0, 0, 0;
