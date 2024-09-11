@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
   const router = useRouter();
 
@@ -24,6 +25,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -49,11 +51,14 @@ export default function LoginPage() {
         router.push("/dashboard/overview");
       } else {
         // Affiche l'erreur renvoyée par l'API
-        console.error(data.error);
+        setErrorMessage(
+          data.error || "Informations d'identification non valides"
+        );
       }
     } catch (error) {
       // Gère les erreurs côté client
       console.error("Erreur lors de la connexion :", error);
+      setErrorMessage("An error occurred during login. Please try again.");
     }
   };
 
@@ -81,6 +86,9 @@ export default function LoginPage() {
           className="flex flex-col justify-center gap-y-9 bg-white w-[560px]  shadow-md rounded-lg px-8 py-9"
         >
           <h2 className="text-preset-1">Login</h2>
+          {errorMessage && (
+            <p className="text-red text-preset-4">{errorMessage}</p>
+          )}
           <div className="flex flex-col gap-y-5">
             <InputField
               type="email"

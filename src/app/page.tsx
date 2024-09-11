@@ -1,22 +1,24 @@
 "use client";
 
-import InputField from "@/ui/InputField";
-import ShowPasswordIcon from "@/assets/images/icon-show-password.svg";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function Home() {
+export default function HomePage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard/overview");
+    } else {
+      router.push("/auth/login");
+    }
+  }, [isAuthenticated, router]);
+
   return (
-    <main className="flex  justify-start items-start gap-3">
-      <div className="min-h-screen flex-grow flex flex-col justify-center items-center p-6 border border-red">
-        <InputField
-          type="email"
-          name={"email"}
-          placeholder={"email"}
-          prefix="$"
-          label="Email"
-          icon={<ShowPasswordIcon />}
-          helperText="Entrez un email valide"
-        />
-      </div>
-    </main>
+    <div className="h-svh flex justify-center items-center text-preset-1 text-grey-900 font-semibold">
+      Loading...
+    </div>
   );
 }

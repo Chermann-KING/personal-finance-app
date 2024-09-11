@@ -23,7 +23,9 @@ export default function RootLayout({
 
   // Masquer la sidebar sur les pages d'authentification
   const showSidebar = !(
-    pathname === "/auth/login" || pathname === "/auth/register"
+    pathname === "/" ||
+    pathname === "/auth/login" ||
+    pathname === "/auth/register"
   );
   return (
     <html lang="en">

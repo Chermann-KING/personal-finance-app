@@ -6,7 +6,10 @@ import { loginAttempts } from "@/lib/loginAttempts";
 
 export async function POST(req: Request) {
   try {
+    // console.log("Requête reçue pour l'authentification");
+
     const { email, password } = await req.json();
+    // console.log("Email et mot de passe reçus :", email);
 
     const now = Date.now();
     const attempts = loginAttempts[email] || [];
@@ -27,16 +30,19 @@ export async function POST(req: Request) {
 
     const db = await connectToDatabase();
     const usersCollection = db.collection("users");
+    // console.log("Connexion à la base de données réussie");
 
     const user = await usersCollection.findOne({ email });
 
     if (!user) {
+      // console.error("Utilisateur non trouvé :", email);
       return NextResponse.json({ error: "No user found" }, { status: 404 });
     }
 
     const isPasswordValid = await compare(password, user.password);
 
     if (!isPasswordValid) {
+      // console.error("Mot de passe incorrect pour l'utilisateur :", email);
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
@@ -62,6 +68,8 @@ export async function POST(req: Request) {
       path: "/", // Cookie accessible sur tout le site
       maxAge: 3600, // 1 heure
     });
+
+    // console.log("Réponse avec cookie authToken définie");
 
     return response;
   } catch (error) {

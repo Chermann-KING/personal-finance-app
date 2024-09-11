@@ -11,9 +11,9 @@ export function middleware(req: NextRequest) {
   }
 
   // Si l'utilisateur essaie d'accéder à une page du dashboard sans token, rediriger vers /auth/login
-  // if (req.nextUrl.pathname.startsWith("/dashboard") && !token) {
-  //   return NextResponse.redirect(new URL("/auth/login", req.url));
-  // }
+  if (req.nextUrl.pathname.startsWith("/dashboard") && !token) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
 
   return NextResponse.next();
 }
