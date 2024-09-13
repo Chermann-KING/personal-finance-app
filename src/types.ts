@@ -39,3 +39,10 @@ export interface FinancialData {
   budgets: Budget[];
   bills: Bill;
 }
+
+export interface FetchOptions {
+  page: number;
+  searchQuery: string;
+  sortBy: string;
+  categoryFilter: string;
+}
