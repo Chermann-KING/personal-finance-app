@@ -157,7 +157,7 @@ function TransactionsPage() {
       }
       return prevTotal; // Ne met pas à jour si le total est le même
     });
-  }, [currentPage, searchQuery, sortBy, categoryFilter]); // Supprime `fetchTransactions` des dépendances
+  }, [currentPage, searchQuery, sortBy, categoryFilter]);
 
   // Fetch transactions chaque fois que l'un des filtres change
   useEffect(() => {
