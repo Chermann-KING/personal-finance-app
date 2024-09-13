@@ -1,9 +1,8 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
 
 type CategoryDropdownOptions =
+  | "All Transactions"
   | "Entertainment"
   | "Bills"
   | "Groceries"
@@ -21,7 +20,7 @@ interface CategoryDropdownProps {
 }
 
 const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
-  initialSelectedOption = "Entertainment", // Défaut à "Entertainment"
+  initialSelectedOption = "All Transactions", // Défaut à "All Transactions"
   onOptionChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,6 +83,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
       >
         {(
           [
+            "All Transactions",
             "Entertainment",
             "Bills",
             "Groceries",
