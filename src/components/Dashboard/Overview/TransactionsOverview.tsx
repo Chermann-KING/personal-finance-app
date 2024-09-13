@@ -1,7 +1,7 @@
 import React from "react";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import Image from "next/image";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface Transaction {
   name: string;
@@ -18,11 +18,11 @@ interface TransactionsOverviewProps {
 const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
   transactions,
 }) => {
-  // const router = useRouter();
+  const router = useRouter();
 
-  // const handleSeeDetails = () => {
-  //   router.push("/dashboard/transactions");
-  // };
+  const handleSeeDetails = () => {
+    router.push("/dashboard/transactions");
+  };
 
   // Formater le montant avec un signe positif ou négatif
   const formatCurrency = (amount: number) => {
@@ -43,7 +43,7 @@ const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
         <button
           type="button"
           className="flex items-center gap-x-3 text-preset-4 text-grey-500"
-          // onClick={handleSeeDetails}
+          onClick={handleSeeDetails}
         >
           View All <CaretRightIcon />
         </button>
