@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import OverviewIcon from "@/assets/images/icon-nav-overview.svg";
 import TransactionsIcon from "@/assets/images/icon-nav-transactions.svg";
@@ -14,12 +15,14 @@ import LogoSmall from "@/assets/images/logo-small.svg";
 type SidebarItem = {
   label: string;
   icon: JSX.Element;
+  route: string;
   active: boolean;
 };
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeItem, setActiveItem] = useState<string>("Overview");
+  const router = useRouter();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -29,22 +32,31 @@ const Sidebar = () => {
     {
       label: "Overview",
       icon: <OverviewIcon />,
+      route: "/dashboard/overview",
       active: activeItem === "Overview",
     },
     {
       label: "Transactions",
       icon: <TransactionsIcon />,
+      route: "/dashboard/transactions",
       active: activeItem === "Transactions",
     },
     {
       label: "Budgets",
       icon: <BudgetsIcon />,
+      route: "/dashboard/budgets",
       active: activeItem === "Budgets",
     },
-    { label: "Pots", icon: <PotsIcon />, active: activeItem === "Pots" },
+    {
+      label: "Pots",
+      icon: <PotsIcon />,
+      route: "/dashboard/pots",
+      active: activeItem === "Pots",
+    },
     {
       label: "Recurring bills",
-      icon: <RecurringBillsIcon className={`text-preset-2 `} />,
+      icon: <RecurringBillsIcon className="text-preset-2" />,
+      route: "/dashboard/recurring-bills",
       active: activeItem === "Recurring bills",
     },
   ];
@@ -61,16 +73,19 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation items */}
-      <nav className=" mt-[90px] flex flex-col flex-grow items-start space-y-4">
+      <nav className="mt-[90px] flex flex-col flex-grow items-start space-y-4">
         {items.map((item) => (
           // item
           <button
             type="button"
             key={item.label}
-            onClick={() => setActiveItem(item.label)}
-            className={`w-full flex items-center p-4  transition-all duration-500  border-l-4 rounded-r-xl ${
+            onClick={() => {
+              setActiveItem(item.label);
+              router.push(item.route);
+            }}
+            className={`w-full flex items-center p-4 transition-all duration-500 border-l-4 rounded-r-xl ${
               item.active
-                ? "bg-beige-100 text-grey-900 border-green border-l-4"
+                ? "bg-beige-100 text-grey-900 border-green"
                 : "text-grey-300 border-transparent"
             }`}
           >
