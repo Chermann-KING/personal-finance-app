@@ -53,6 +53,17 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     closeEditPopup();
   };
 
+  // Formater le montant avec un signe positif ou négatif
+  const formatCurrency = (amount: number) => {
+    const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    });
+
+    return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`;
+  };
+
   return (
     <div className="w-[608px] p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
       <BudgetPopup
@@ -145,7 +156,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
               </div>
               <div className="flex flex-col justify-center items-end gap-1">
                 <p className="text-right text-grey-900 text-xs font-bold">
-                  ${transaction.amount.toFixed(2)}
+                  {formatCurrency(transaction.amount)}
                 </p>
                 <p className="text-grey-300 text-preset-5">
                   {new Date(transaction.date).toLocaleDateString("en-GB", {
