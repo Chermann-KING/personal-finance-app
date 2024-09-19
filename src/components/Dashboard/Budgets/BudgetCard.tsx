@@ -3,6 +3,7 @@ import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import DropdownMenu from "@/ui/BudgetCardDropDownMenu";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
+import { useBudget } from "@/context/BudgetContext";
 
 interface Transaction {
   avatar: string;
@@ -28,44 +29,40 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   theme,
   latestTransactions,
 }) => {
-  // État pour contrôler l'affichage de la popup d'édition
+  const { editBudget, deleteBudget } = useBudget();
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
 
   const handleEdit = () => {
-    setIsEditPopupOpen(true); // Ouvre la popup d'édition
+    setIsEditPopupOpen(true);
   };
 
   const handleDelete = () => {
-    console.log("Delete budget");
+    deleteBudget(category);
   };
 
-  // Fonction pour fermer la popup
   const closeEditPopup = () => {
     setIsEditPopupOpen(false);
   };
 
-  // Fonction pour soumettre les changements
   const handleSubmit = (updatedBudget: {
     category: string;
     maximum: number;
     theme: string;
   }) => {
-    console.log("Updated budget:", updatedBudget);
-    closeEditPopup(); // Ferme la popup après soumission
+    editBudget(updatedBudget);
+    closeEditPopup();
   };
 
   return (
     <div className="w-[608px] p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
-      {/* Popup d'édition du budget */}
       <BudgetPopup
         isOpen={isEditPopupOpen}
         onClose={closeEditPopup}
-        budgetToEdit={{ category, maximum, theme }} // Transmet les informations actuelles du budget
+        budgetToEdit={{ category, maximum, theme }}
         onSubmit={handleSubmit}
       />
 
       <div className="self-stretch flex justify-between items-center">
-        {/* Titre de la carte */}
         <div className="h-6 justify-start items-center gap-4 flex">
           <div
             className="w-4 h-4 rounded-full"
@@ -73,11 +70,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           />
           <h2 className="text-grey-900 text-preset-2 font-bold">{category}</h2>
         </div>
-        {/* Dropdown Menu */}
         <DropdownMenu onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 
-      {/* Maximum, progress, spent & remaining */}
       <div className="w-full h-32 flex-col justify-start items-start gap-4 flex">
         <div className="flex justify-start items-center gap-4">
           <p className="text-grey-500 text-preset-4">
@@ -118,7 +113,6 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
         </div>
       </div>
 
-      {/* Latest Spending (3 max displayed) */}
       <div className="w-full p-5 pt-6 bg-beige-100 rounded-xl flex flex-col justify-center items-start gap-5">
         <div className="self-stretch flex justify-between items-center">
           <h3 className="text-preset-2 text-grey-900 font-bold">
