@@ -24,9 +24,9 @@ export default function BudgetsPage() {
     <BudgetProvider>
       {" "}
       {/* Utilisation du contexte ici */}
-      <div className="px-10 py-9 flex-col justify-start items-center gap-8 border-[5px] border-red">
+      <div className="px-10 py-9 flex flex-col justify-start items-center gap-8">
         {/* header */}
-        <div className="mb-10 mx-auto w-[1060px] h-14 py-2 flex justify-between items-center gap-6">
+        <div className=" mx-auto w-[1060px] h-14 py-2 flex justify-between items-center gap-6">
           <h1 className="text-grey-900 text-preset-1">Budgets</h1>
           <Button
             type="button"
