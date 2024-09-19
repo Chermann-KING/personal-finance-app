@@ -1,6 +1,7 @@
 import React from "react";
 import BudgetCard from "@/components/Dashboard/Budgets/BudgetCard";
 import { useBudget } from "@/context/BudgetContext";
+import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
 
 export default function BudgetCards() {
   const { budgets, transactions } = useBudget();
@@ -14,7 +15,7 @@ export default function BudgetCards() {
         return (
           <BudgetCard
             key={budget.category}
-            category={budget.category}
+            category={budget.category as CategoryDropdownOptions}
             maximum={budget.maximum}
             spent={budget.spent ?? 0}
             remaining={budget.remaining ?? 0}
