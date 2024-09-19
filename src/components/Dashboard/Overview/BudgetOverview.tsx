@@ -3,6 +3,7 @@ import { ChartData } from "chart.js";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import { useRouter } from "next/navigation";
 import DoughnutChart from "@/ui/DoughnutChart";
+
 interface Budget {
   category: string;
   maximum: number;
@@ -21,16 +22,16 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
     router.push("/dashboard/budgets");
   };
 
-  // Récupération des données pour le graphique
+  // Récupération des données pour le graphique : dépenses réelles et limite totale
   const spent = budgets.reduce((acc, budget) => acc + budget.spent, 0);
   const limit = budgets.reduce((acc, budget) => acc + budget.maximum, 0);
 
-  // Typage des données du graphique
+  // Typage des données du graphique : dépenses réelles
   const data: ChartData<"doughnut", number[], string> = {
     labels: budgets.map((budget) => budget.category),
     datasets: [
       {
-        data: budgets.map((budget) => budget.spent),
+        data: budgets.map((budget) => budget.spent), // Affiche les dépenses réelles
         backgroundColor: budgets.map((budget) => budget.theme),
         hoverOffset: 4,
         borderWidth: 2,
@@ -54,10 +55,10 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
 
       {/* Budget Chart */}
       <div className="mt-5 flex justify-between items-center gap-x-3">
-        {/* Doughnut */}
+        {/* Doughnut Chart avec les dépenses réelles */}
         <DoughnutChart data={data} spent={spent} limit={limit} />
 
-        {/* Budget Details */}
+        {/* Budget Details : affiche les maximums des budgets */}
         <div className="h-[220px] grid grid-cols-1 gap-y-4">
           {budgets.map((budget, index) => (
             <div
