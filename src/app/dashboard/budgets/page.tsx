@@ -22,7 +22,6 @@ export default function BudgetsPage() {
 
   return (
     <BudgetProvider>
-      {" "}
       {/* Utilisation du contexte ici */}
       <div className="px-10 py-9 flex flex-col justify-start items-center gap-8">
         {/* header */}

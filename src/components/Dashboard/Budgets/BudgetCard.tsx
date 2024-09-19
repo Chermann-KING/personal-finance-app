@@ -6,6 +6,8 @@ import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
 import DeleteConfirmation from "@/ui/DeleteBudgetConfirmationPopup";
 import { useBudget } from "@/context/BudgetContext";
 import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
+import { useRouter } from "next/navigation";
+import { createSlug } from "@/lib/slug";
 
 interface Transaction {
   avatar: string;
@@ -33,6 +35,13 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   const { editBudget } = useBudget();
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+
+  const router = useRouter();
+
+  const handleSeeAll = () => {
+    const slug = createSlug(category);
+    router.push(`/dashboard/budgets/${slug}/`);
+  };
 
   const handleEdit = () => {
     setIsEditPopupOpen(true);
@@ -146,6 +155,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           <button
             type="button"
             className="flex items-center gap-x-3 text-preset-4 text-grey-500"
+            onClick={handleSeeAll}
           >
             See All <CaretRightIcon />
           </button>

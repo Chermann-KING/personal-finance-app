@@ -18,8 +18,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
     return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`;
   };
 
+  // console.log("Transaction item:", transaction);
+  if (!transaction) return null;
+
   return (
-    <li className="self-stretch px-4 py-4 justify-start items-center gap-8 inline-flex">
+    <li className="self-stretch px-4 py-4 flex justify-start items-center gap-8">
       {/* recipent/sender */}
       <div className="grow shrink basis-0 h-10 justify-start items-center gap-4 flex">
         <Image
