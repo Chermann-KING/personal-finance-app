@@ -1,18 +1,8 @@
 import React from "react";
-import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  ChartData,
-  ChartOptions,
-} from "chart.js";
+import { ChartData } from "chart.js";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import { useRouter } from "next/navigation";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
+import DoughnutChart from "@/ui/DoughnutChart";
 interface Budget {
   category: string;
   maximum: number;
@@ -48,24 +38,6 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
     ],
   };
 
-  // Typage du callback de tooltip
-  const options: ChartOptions<"doughnut"> = {
-    cutout: "70%", // Pour créer un espace vide au centre
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: function (tooltipItem) {
-            const value = tooltipItem.raw as number;
-            return `$${value.toFixed(2)}`;
-          },
-        },
-      },
-    },
-  };
-
   return (
     <div className="w-[428px] h-[410px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8">
       {/* Header */}
@@ -81,17 +53,9 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
       </div>
 
       {/* Budget Chart */}
-      <div className="mt-5 flex justify-between items-center">
-        {/* Doughnut Chart */}
-        <div className="relative w-[247px] h-[247px]">
-          <Doughnut data={data} options={options} />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <p className="text-preset-1 text-grey-900">${spent.toFixed(2)}</p>
-            <p className="text-preset-4 text-grey-500">
-              of ${limit.toFixed(2)} limit
-            </p>
-          </div>
-        </div>
+      <div className="mt-5 flex justify-between items-center gap-x-3">
+        {/* Doughnut */}
+        <DoughnutChart data={data} spent={spent} limit={limit} />
 
         {/* Budget Details */}
         <div className="h-[220px] grid grid-cols-1 gap-y-4">

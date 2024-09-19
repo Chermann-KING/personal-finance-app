@@ -24,7 +24,7 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({
   limit,
   options,
 }) => {
-  // Options par défaut
+  // Options par défaut combinées
   const defaultOptions: ChartOptions<"doughnut"> = {
     cutout: "80%", // Espace vide au centre
     plugins: {
@@ -41,19 +41,16 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({
       },
     },
   };
-  const defaultOptions2: ChartOptions<"doughnut"> = {
+
+  // Uniquement pour l'arrière-plan
+  const backgroundChartOptions: ChartOptions<"doughnut"> = {
     cutout: "70%", // Espace vide au centre
     plugins: {
       legend: {
         display: false,
       },
       tooltip: {
-        callbacks: {
-          label: function (tooltipItem) {
-            const value = tooltipItem.raw as number;
-            return `$${value.toFixed(2)}`;
-          },
-        },
+        enabled: false, // Désactive le tooltip sur le fond
       },
     },
   };
@@ -63,6 +60,7 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({
       {/* chart */}
       <div className="relative">
         <Doughnut
+          key="foreground-chart"
           data={data}
           options={options || defaultOptions}
           style={{
@@ -70,13 +68,17 @@ const DoughnutChart: React.FC<DoughnutChartProps> = ({
           }}
         />
         <Doughnut
+          key="background-chart"
           data={data}
-          options={options || defaultOptions2}
+          options={backgroundChartOptions}
           style={{
             opacity: "0.7",
             position: "absolute",
             top: "0",
             right: "0",
+            left: "0",
+            bottom: "0",
+            zIndex: "1",
           }}
         />
       </div>
