@@ -29,7 +29,7 @@ function TransactionsPage() {
   // Calculer le nombre total de pages
   const totalPages = Math.ceil(totalTransactions / transactionsPerPage);
 
-  // Fonction fetchData extraite et mémorisée avec useCallback
+  // Fonction fetchData extraite et mémorisée avec useCallback pour éviter la boucle infinie
   const fetchData = useCallback(async () => {
     const sortOptionsMap: Record<string, string> = {
       Latest: "Latest",
@@ -48,20 +48,13 @@ function TransactionsPage() {
     });
 
     // Seulement mettre à jour si le total a changé
-    setTotalTransactions((prevTotal) => {
-      if (prevTotal !== total) {
-        return total;
-      }
-      return prevTotal; // Ne met pas à jour si le total est le même
-    });
-  }, [currentPage, searchQuery, sortBy, categoryFilter]);
+    setTotalTransactions(total);
+  }, [currentPage, searchQuery, sortBy, categoryFilter, fetchTransactions]);
 
   // Fetch transactions chaque fois que l'un des filtres change
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  // max-h-[1135px]
 
   return (
     <div className="flex-grow h-auto px-10 py-9 flex-col justify-start items-center gap-8">
@@ -96,7 +89,7 @@ function TransactionsPage() {
             <div className="justify-start items-center gap-2 flex">
               {/* title */}
               <div className="text-grey-500 text-preset-4">Category</div>
-              {/* dropdoawn category */}
+              {/* dropdown category */}
               <div className="flex-col justify-start items-start gap-1 inline-flex">
                 <CategoriesDropdown
                   onOptionChange={(option) => setCategoryFilter(option)}
