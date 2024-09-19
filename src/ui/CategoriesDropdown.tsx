@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
 
-type CategoryDropdownOptions =
+export type CategoryDropdownOptions =
   | "All Transactions"
   | "Entertainment"
   | "Bills"
