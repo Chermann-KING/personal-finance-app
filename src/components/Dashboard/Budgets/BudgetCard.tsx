@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import DropdownMenu from "@/ui/BudgetCardDropDownMenu";
@@ -15,6 +15,7 @@ interface Transaction {
   date: string;
   amount: number;
 }
+
 interface BudgetCardProps {
   category: CategoryDropdownOptions;
   maximum: number;
@@ -35,8 +36,38 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   const { editBudget } = useBudget();
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-
+  const [isVisible, setIsVisible] = useState(false); // Pour suivre la visibilité
+  const progressBarRef = useRef<HTMLDivElement>(null); // Référence pour la barre de progression
   const router = useRouter();
+
+  // Fonction pour voir si la barre de progression est visible dans le viewport
+  useEffect(() => {
+    const progressBarElement = progressBarRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true); // Déclenche l'animation lorsque l'élément est visible
+            observer.unobserve(entry.target); // Désactiver l'observateur après animation
+          }
+        });
+      },
+      {
+        threshold: 0.5, // Se déclenche quand 50% de la barre est visible
+      }
+    );
+
+    if (progressBarElement) {
+      observer.observe(progressBarElement);
+    }
+
+    return () => {
+      if (progressBarElement) {
+        observer.unobserve(progressBarElement);
+      }
+    };
+  }, []);
 
   const handleSeeAll = () => {
     const slug = createSlug(category);
@@ -88,14 +119,12 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
         budgetToEdit={{ category, maximum, theme }}
         onSubmit={handleSubmit}
       />
-
       {/* Popup de confirmation de suppression */}
       <DeleteConfirmation
         isOpen={isDeletePopupOpen}
         onClose={closeDeletePopup}
         budgetCategory={category}
       />
-
       <div className="self-stretch flex justify-between items-center">
         <div className="h-6 justify-start items-center gap-4 flex">
           <div
@@ -106,18 +135,22 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
         </div>
         <DropdownMenu onEdit={handleEdit} onDelete={handleDelete} />
       </div>
-
       <div className="w-full h-32 flex-col justify-start items-start gap-4 flex">
         <div className="flex justify-start items-center gap-4">
           <p className="text-grey-500 text-preset-4">
             Maximum of ${maximum.toFixed(2)}
           </p>
         </div>
-        <div className="w-full h-8 p-1 bg-beige-100 rounded flex justify-start items-start">
+        <div
+          className="w-full h-8 p-1 bg-beige-100 rounded flex justify-start items-start"
+          ref={progressBarRef}
+        >
           <div
-            className="self-stretch rounded"
+            className={`self-stretch rounded transition-all duration-1000 ease-in-out ${
+              isVisible ? "w-[100%]" : "w-0"
+            }`}
             style={{
-              width: `${(spent / maximum) * 100}%`,
+              width: isVisible ? `${(spent / maximum) * 100}%` : "0%", // Démarre à 0% et se termine à la taille nécessaire
               backgroundColor: theme,
             }}
           />
@@ -146,7 +179,6 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           </div>
         </div>
       </div>
-
       <div className="w-full p-5 pt-6 bg-beige-100 rounded-xl flex flex-col justify-center items-start gap-5">
         <div className="self-stretch flex justify-between items-center">
           <h3 className="text-preset-2 text-grey-900 font-bold">
@@ -197,5 +229,4 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     </div>
   );
 };
-
 export default BudgetCard;
