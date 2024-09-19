@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
+import { Budget } from "@/types";
 
 type Color = {
   name: string;
@@ -10,13 +11,14 @@ type Color = {
 interface ColorsDropdownProps {
   selectedColor: string;
   onSelectColor: (color: string) => void;
+  existingBudgets: Budget[]; // Ajout des budgets existants
 }
 
 const colors: Color[] = [
-  { name: "Green", value: "#277C78", used: true },
-  { name: "Yellow", value: "#F2CDAC", used: true },
-  { name: "Cyan", value: "#82C9D7", used: true },
-  { name: "Navy", value: "#626070", used: true },
+  { name: "Green", value: "#277C78", used: false },
+  { name: "Yellow", value: "#F2CDAC", used: false },
+  { name: "Cyan", value: "#82C9D7", used: false },
+  { name: "Navy", value: "#626070", used: false },
   { name: "Red", value: "#C94736", used: false },
   { name: "Purple", value: "#826CB0", used: false },
   { name: "Turquoise", value: "#597C7C", used: false },
@@ -33,12 +35,24 @@ const colors: Color[] = [
 const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   selectedColor,
   onSelectColor,
+  existingBudgets, // Recevoir les budgets existants pour vérifier les couleurs utilisées
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [availableColors, setAvailableColors] = useState<Color[]>(colors);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Vérifier les couleurs utilisées dans les budgets existants
+  useEffect(() => {
+    const usedColors = existingBudgets.map((budget) => budget.theme);
+    const updatedColors = colors.map((color) => ({
+      ...color,
+      used: usedColors.includes(color.value), // Marquer comme "used" si la couleur est déjà utilisée
+    }));
+    setAvailableColors(updatedColors);
+  }, [existingBudgets]);
+
   const handleSelectColor = (color: Color) => {
-    onSelectColor(color.value); // Appelle la fonction avec la valeur sélectionnée
+    onSelectColor(color.value);
     setIsOpen(false);
   };
 
@@ -49,10 +63,9 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false); // Fermer la dropdown si le clic est en dehors
+        setIsOpen(false);
       }
     };
-
     // Attache l'écouteur d'événement
     document.addEventListener("mousedown", handleClickOutside);
 
@@ -63,7 +76,7 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   }, []);
 
   const selectedColorName =
-    colors.find((color) => color.value === selectedColor)?.name ??
+    availableColors.find((color) => color.value === selectedColor)?.name ??
     "Select theme";
 
   return (
@@ -78,9 +91,7 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
         <span className="flex items-center">
           <span
             className="h-4 w-4 rounded-full mr-3"
-            style={{
-              backgroundColor: selectedColor,
-            }}
+            style={{ backgroundColor: selectedColor }}
           ></span>
           {/* label */}
           <span className="text-gray-900 text-preset-4">
@@ -100,7 +111,7 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
         }`}
         style={{ transitionProperty: "opacity, transform" }}
       >
-        {colors.map((color) => (
+        {availableColors.map((color) => (
           <div
             key={color.value}
             className={`flex justify-between items-center text-[0.875rem] text-gray-900 py-3.5 ${
@@ -117,13 +128,11 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
                 className={`h-4 w-4 rounded-full mr-3 ${
                   color.used ? "opacity-10" : "opacity-100"
                 }`}
-                style={{
-                  backgroundColor: color.value,
-                }}
+                style={{ backgroundColor: color.value }}
               ></span>
               {/* label */}
               <span
-                className={`${color.used ? "text-gray-900 " : "text-gray-900"}`}
+                className={`${color.used ? "text-gray-900" : "text-gray-900"}`}
               >
                 {color.name}
               </span>
