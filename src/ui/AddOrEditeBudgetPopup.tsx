@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from "react";
-import CategoriesDropdown from "@/ui/CategoriesDropdown";
+import React, { useState, useContext, useEffect } from "react";
+import { BudgetContext } from "@/context/BudgetContext";
+import CategoriesDropdown, {
+  CategoryDropdownOptions,
+} from "@/ui/CategoriesDropdown";
 import ColorsDropdown from "@/ui/ColorsDropdown";
 import InputField from "@/ui/InputField";
 import CloseModalIcon from "@/assets/images/icon-close-modal.svg";
@@ -9,12 +12,12 @@ interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
   budgetToEdit?: {
-    category: string;
+    category: CategoryDropdownOptions;
     maximum: number;
     theme: string;
   }; // null si on ajoute un nouveau budget
   onSubmit: (budget: {
-    category: string;
+    category: CategoryDropdownOptions;
     maximum: number;
     theme: string;
   }) => void;
@@ -26,7 +29,12 @@ const BudgetPopup: React.FC<PopupProps> = ({
   budgetToEdit,
   onSubmit,
 }) => {
-  const [category, setCategory] = useState("Entertainment");
+  const budgetContext = useContext(BudgetContext); // Récupérer les budgets depuis le contexte
+  const budgets = budgetContext ? budgetContext.budgets : []; // Assurez-vous que budgets n'est pas undefined
+
+  const [category, setCategory] = useState<CategoryDropdownOptions | undefined>(
+    undefined
+  );
   const [maximum, setMaximum] = useState<number | "">(0);
   const [theme, setTheme] = useState("#277C78");
 
@@ -41,7 +49,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
       setMaximum("");
       setTheme("#277C78");
     }
-  }, [budgetToEdit]); // Ce `useEffect` s'exécute à chaque changement de `budgetToEdit`
+  }, [budgetToEdit]);
 
   const handleSave = () => {
     if (maximum === "" || !category || !theme) return;
@@ -63,7 +71,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
             onClick={onClose}
           />
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-preset-4 text-grey-500">
           {budgetToEdit
             ? "Update your spending limits as your budgets change."
             : "Set a spending budget for the selected category."}
@@ -74,7 +82,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
               Budget Category
             </span>
             <CategoriesDropdown
-              initialSelectedOption={category as any}
+              initialSelectedOption={category}
               onOptionChange={setCategory}
             />
           </div>
@@ -91,7 +99,11 @@ const BudgetPopup: React.FC<PopupProps> = ({
             <span className="text-preset-5 text-grey-500 font-bold">
               Budget Theme
             </span>
-            <ColorsDropdown selectedColor={theme} onSelectColor={setTheme} />
+            <ColorsDropdown
+              selectedColor={theme}
+              onSelectColor={setTheme}
+              existingBudgets={budgets}
+            />
           </div>
         </div>
         <Button onClick={handleSave} className="w-full" variant="primary">
