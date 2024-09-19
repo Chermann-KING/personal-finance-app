@@ -3,7 +3,9 @@ import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import DropdownMenu from "@/ui/BudgetCardDropDownMenu";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
+import DeleteConfirmation from "@/ui/DeleteBudgetConfirmationPopup";
 import { useBudget } from "@/context/BudgetContext";
+import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
 
 interface Transaction {
   avatar: string;
@@ -11,9 +13,8 @@ interface Transaction {
   date: string;
   amount: number;
 }
-
 interface BudgetCardProps {
-  category: string;
+  category: CategoryDropdownOptions;
   maximum: number;
   spent: number;
   remaining: number;
@@ -29,19 +30,24 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   theme,
   latestTransactions,
 }) => {
-  const { editBudget, deleteBudget } = useBudget();
+  const { editBudget } = useBudget();
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
 
   const handleEdit = () => {
     setIsEditPopupOpen(true);
   };
 
   const handleDelete = () => {
-    deleteBudget(category);
+    setIsDeletePopupOpen(true);
   };
 
   const closeEditPopup = () => {
     setIsEditPopupOpen(false);
+  };
+
+  const closeDeletePopup = () => {
+    setIsDeletePopupOpen(false);
   };
 
   const handleSubmit = (updatedBudget: {
@@ -66,11 +72,19 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
 
   return (
     <div className="w-[608px] p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
+      {/* Popup d'édition du budget */}
       <BudgetPopup
         isOpen={isEditPopupOpen}
         onClose={closeEditPopup}
         budgetToEdit={{ category, maximum, theme }}
         onSubmit={handleSubmit}
+      />
+
+      {/* Popup de confirmation de suppression */}
+      <DeleteConfirmation
+        isOpen={isDeletePopupOpen}
+        onClose={closeDeletePopup}
+        budgetCategory={category}
       />
 
       <div className="self-stretch flex justify-between items-center">
