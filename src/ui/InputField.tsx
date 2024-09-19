@@ -4,6 +4,7 @@ interface InputFieldProps {
   label?: string;
   name: string;
   type?: string;
+  value?: string;
   placeholder?: string;
   helperText?: string;
   icon?: JSX.Element;
@@ -15,6 +16,7 @@ const InputField: React.FC<InputFieldProps> = ({
   label,
   name,
   type = "text",
+  value,
   placeholder,
   helperText,
   icon,
@@ -48,6 +50,7 @@ const InputField: React.FC<InputFieldProps> = ({
         <input
           type={type}
           name={name}
+          value={value}
           placeholder={placeholder}
           className={`block w-full rounded-md border-0 py-3.5 ${
             prefix ? "pl-10" : "pl-[19px]"
