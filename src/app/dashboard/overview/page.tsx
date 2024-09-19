@@ -6,7 +6,7 @@ import TransactionsOverview from "@/components/Dashboard/Overview/TransactionsOv
 import BudgetOverview from "@/components/Dashboard/Overview/BudgetOverview";
 import PotsOverview from "@/components/Dashboard/Overview/PotsOverview";
 import ReccuringBillsOverview from "@/components/Dashboard/Overview/ReccuringBillsOverview";
-import { FinancialData, Budget, Transaction } from "@/types"; // Import des types
+import { FinancialData, Budget, Transaction } from "@/types";
 
 // Simule l'API fetch pour obtenir les données du fichier JSON
 const fetchFinancialData = async (): Promise<FinancialData> => {
