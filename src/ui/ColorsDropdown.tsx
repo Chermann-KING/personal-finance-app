@@ -7,6 +7,11 @@ type Color = {
   used: boolean;
 };
 
+interface ColorsDropdownProps {
+  selectedColor: string;
+  onSelectColor: (color: string) => void;
+}
+
 const colors: Color[] = [
   { name: "Green", value: "#277C78", used: true },
   { name: "Yellow", value: "#F2CDAC", used: true },
@@ -25,14 +30,15 @@ const colors: Color[] = [
   { name: "Orange", value: "#BE6C49", used: false },
 ];
 
-const ColorsDropdown = () => {
-  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
+  selectedColor,
+  onSelectColor,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSelectColor = (color: Color) => {
-    setSelectedColor(color);
+    onSelectColor(color.value); // Appelle la fonction avec la valeur sélectionnée
     setIsOpen(false);
   };
 
@@ -56,6 +62,10 @@ const ColorsDropdown = () => {
     };
   }, []);
 
+  const selectedColorName =
+    colors.find((color) => color.value === selectedColor)?.name ??
+    "Select theme";
+
   return (
     <div className="relative w-full min-w-56" ref={dropdownRef}>
       {/* Button to open dropdown */}
@@ -66,23 +76,16 @@ const ColorsDropdown = () => {
       >
         {/* color dot & label */}
         <span className="flex items-center">
-          {selectedColor ? (
-            <>
-              {/* color dot */}
-              <span
-                className="h-4 w-4 rounded-full mr-3"
-                style={{
-                  backgroundColor: selectedColor.value,
-                }}
-              ></span>
-              {/* label */}
-              <span className="text-gray-900 text-preset-4">
-                {selectedColor.name}
-              </span>
-            </>
-          ) : (
-            "Select theme"
-          )}
+          <span
+            className="h-4 w-4 rounded-full mr-3"
+            style={{
+              backgroundColor: selectedColor,
+            }}
+          ></span>
+          {/* label */}
+          <span className="text-gray-900 text-preset-4">
+            {selectedColorName}
+          </span>
         </span>
         {/* icon */}
         <CaretDownIcon className={`transform ${isOpen ? "rotate-180" : ""}`} />
