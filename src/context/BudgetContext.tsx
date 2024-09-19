@@ -12,13 +12,15 @@ interface BudgetContextProps {
 }
 
 // Créer le contexte
-const BudgetContext = createContext<BudgetContextProps | undefined>(undefined);
+export const BudgetContext = createContext<BudgetContextProps | undefined>(
+  undefined
+);
 
 // Hook pour utiliser le contexte facilement
 export const useBudget = () => {
   const context = useContext(BudgetContext);
   if (!context) {
-    throw new Error("useBudget doit être utilisé dans un BudgetProvider");
+    throw new Error("useBudget must be used in a BudgetProvider");
   }
   return context;
 };
