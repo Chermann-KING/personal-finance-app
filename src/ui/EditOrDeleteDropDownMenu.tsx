@@ -4,9 +4,16 @@ import EllipsisIcon from "@/assets/images/icon-ellipsis.svg";
 interface DropdownMenuProps {
   onEdit: () => void;
   onDelete: () => void;
+  editLabel: string;
+  deleteLabel: string;
 }
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ onEdit, onDelete }) => {
+const DropdownMenu: React.FC<DropdownMenuProps> = ({
+  onEdit,
+  onDelete,
+  editLabel,
+  deleteLabel,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +63,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ onEdit, onDelete }) => {
               setIsOpen(false);
             }}
           >
-            Edit Budget
+            {editLabel}
           </li>
           <li
             className="py-3 text-preset-4 text-red cursor-pointer"
@@ -65,7 +72,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ onEdit, onDelete }) => {
               setIsOpen(false);
             }}
           >
-            Delete Budget
+            {deleteLabel}
           </li>
         </ul>
       </div>
