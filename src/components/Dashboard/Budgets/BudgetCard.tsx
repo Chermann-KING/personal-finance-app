@@ -3,7 +3,7 @@ import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import DropdownMenu from "@/ui/EditOrDeleteDropDownMenu";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
-import DeleteConfirmation from "@/ui/DeleteBudgetConfirmationPopup";
+import DeleteConfirmation from "@/ui/DeleteConfirmationPopup";
 import { useBudget } from "@/context/BudgetContext";
 import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   theme,
   latestTransactions,
 }) => {
-  const { editBudget } = useBudget();
+  const { editBudget, deleteBudget } = useBudget();
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false); // Pour suivre la visibilité
@@ -99,6 +99,11 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     closeEditPopup();
   };
 
+  const confirmDeleteBudget = () => {
+    deleteBudget(category);
+    closeDeletePopup();
+  };
+
   // Formater le montant avec un signe positif ou négatif
   const formatCurrency = (amount: number) => {
     const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
@@ -123,7 +128,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
       <DeleteConfirmation
         isOpen={isDeletePopupOpen}
         onClose={closeDeletePopup}
-        budgetCategory={category}
+        itemType="budget"
+        itemName={category}
+        onConfirm={confirmDeleteBudget}
       />
       <div className="self-stretch flex justify-between items-center">
         <div className="h-6 justify-start items-center gap-4 flex">
@@ -234,4 +241,5 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
     </div>
   );
 };
+
 export default BudgetCard;
