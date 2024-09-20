@@ -89,7 +89,10 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
           <div className="flex justify-between items-center">
             <p className="text-preset-4 text-grey-500">New Amount</p>
             <p className="text-preset-1 text-grey-900 font-bold">
-              ${newTotal.toFixed(2)}
+              {newTotal.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
           </div>
 
