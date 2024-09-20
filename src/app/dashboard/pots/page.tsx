@@ -19,8 +19,11 @@ function PotsPage() {
     setModalOpen(true);
   };
 
-  const handleSubmit = (pot: Pot) => {
-    const potWithTotal = { ...pot, total: potToEdit ? pot.total : 0 };
+  const handleSubmit = (pot: Omit<Pot, "total">) => {
+    const potWithTotal: Pot = {
+      ...pot,
+      total: potToEdit ? potToEdit.total || 0 : 0,
+    };
     if (potToEdit) {
       editPot(potWithTotal);
       console.log("Pot modifié :", potWithTotal);
