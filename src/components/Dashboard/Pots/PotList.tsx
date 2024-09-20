@@ -4,7 +4,6 @@ import { Pot } from "@/types";
 import Button from "@/ui/Button";
 import DropdownMenu from "@/ui/EditOrDeleteDropDownMenu";
 import DeleteConfirmation from "@/ui/DeleteConfirmationPopup";
-
 interface PotListProps {
   onEditPot: (pot: Pot) => void;
   onDeletePot: (pot: Pot) => void;
@@ -12,7 +11,11 @@ interface PotListProps {
   onWithdraw: (pot: Pot) => void;
 }
 
-const PotList = ({ onEditPot }: PotListProps) => {
+const PotList: React.FC<PotListProps> = ({
+  onEditPot,
+  onAddMoney,
+  onWithdraw,
+}) => {
   const { pots, deletePot } = usePot();
 
   const [isVisible, setIsVisible] = useState(false); // Pour suivre la visibilité
@@ -141,7 +144,7 @@ const PotList = ({ onEditPot }: PotListProps) => {
               type="button"
               variant="secondary"
               className="w-full"
-              onClick={() => {}}
+              onClick={() => onAddMoney(pot)} // Passe la fonction onAddMoney
             >
               + Add Money
             </Button>
@@ -149,7 +152,7 @@ const PotList = ({ onEditPot }: PotListProps) => {
               type="button"
               variant="secondary"
               className="w-full"
-              onClick={() => {}}
+              onClick={() => onWithdraw(pot)} // Passe la fonction onWithdraw
             >
               Withdraw
             </Button>
