@@ -23,10 +23,17 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Calcul du nouveau total après ajout ou retrait
   const newTotal =
     actionType === "add"
       ? pot.total + (amount ? Number(amount) : 0)
       : pot.total - (amount ? Number(amount) : 0);
+
+  // Calcul de la largeur de la barre de progression pour l'ancien montant
+  const currentPercentage = (pot.total / pot.target) * 100;
+
+  // Calcul de la largeur de la barre de progression pour le nouveau montant
+  const newPercentage = (newTotal / pot.target) * 100;
 
   const handleSubmit = () => {
     if (amount !== "") {
@@ -66,20 +73,41 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
               ${newTotal.toFixed(2)}
             </p>
           </div>
+
           {/* Progress Bar */}
-          <div className="w-full h-2 bg-beige-100 rounded flex justify-start items-start">
+          <div className="w-full h-2 bg-beige-100 rounded flex">
+            {/* Partie noire représentant l'ancien montant */}
             <div
-              className="self-stretch rounded"
+              className="self-stretch rounded-l mr-[2px]"
               style={{
-                width: `${(newTotal / pot.target) * 100}%`,
-                backgroundColor: pot.theme,
+                width: `${currentPercentage}%`,
+                backgroundColor: "#201F24",
               }}
             />
+            {/* Partie rouge/verte représentant la modification */}
+            {actionType === "add" ? (
+              <div
+                className="self-stretch rounded-r bg-green"
+                style={{
+                  width: `${newPercentage - currentPercentage}%`,
+                  backgroundColor: "#277C78",
+                }}
+              />
+            ) : (
+              <div
+                className="self-stretch rounded-r bg-red"
+                style={{
+                  width: `${currentPercentage - newPercentage}%`,
+                  backgroundColor: "#C94736",
+                }}
+              />
+            )}
           </div>
+
           {/* Progress Percentage */}
           <div className="flex justify-between items-center">
             <p className="text-preset-5" style={{ color: pot.theme }}>
-              {((newTotal / pot.target) * 100).toFixed(2)}%
+              {newPercentage.toFixed(2)}%
             </p>
             <p className="text-preset-5 text-grey-500">
               Target of ${pot.target}
