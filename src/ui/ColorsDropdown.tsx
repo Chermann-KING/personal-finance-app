@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
-import { Budget } from "@/types";
+
+interface ColorOwner {
+  theme: string;
+}
 
 type Color = {
   name: string;
@@ -11,7 +14,7 @@ type Color = {
 interface ColorsDropdownProps {
   selectedColor: string;
   onSelectColor: (color: string) => void;
-  existingBudgets: Budget[]; // Ajout des budgets existants
+  existingColors: ColorOwner[];
 }
 
 const colors: Color[] = [
@@ -35,21 +38,21 @@ const colors: Color[] = [
 const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   selectedColor,
   onSelectColor,
-  existingBudgets, // Recevoir les budgets existants pour vérifier les couleurs utilisées
+  existingColors,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [availableColors, setAvailableColors] = useState<Color[]>(colors);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Vérifier les couleurs utilisées dans les budgets existants
+  // Vérifier les couleurs utilisées dans les budgets ou les pots existants
   useEffect(() => {
-    const usedColors = existingBudgets.map((budget) => budget.theme);
+    const usedColors = existingColors.map((item) => item.theme);
     const updatedColors = colors.map((color) => ({
       ...color,
       used: usedColors.includes(color.value), // Marquer comme "used" si la couleur est déjà utilisée
     }));
     setAvailableColors(updatedColors);
-  }, [existingBudgets]);
+  }, [existingColors]);
 
   const handleSelectColor = (color: Color) => {
     onSelectColor(color.value);
