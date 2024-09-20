@@ -102,7 +102,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
             <ColorsDropdown
               selectedColor={theme}
               onSelectColor={setTheme}
-              existingBudgets={budgets}
+              existingColors={budgets}
             />
           </div>
         </div>
