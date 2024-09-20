@@ -73,7 +73,7 @@ const PotList: React.FC<PotListProps> = ({
       {pots.map((pot, index) => (
         <div
           key={index}
-          className="bg-white w-[518px] h-[303px] flex flex-col gap-y-8 rounded-xl p-6"
+          className="bg-white w-[518px] h-[303px] flex flex-col justify-between gap-y-8 rounded-xl p-6"
         >
           {/* Popup de confirmation de suppression */}
           <DeleteConfirmation
@@ -86,7 +86,7 @@ const PotList: React.FC<PotListProps> = ({
 
           {/* header */}
           <div className="flex justify-between">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-4">
               <div
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: pot.theme }}
@@ -103,39 +103,46 @@ const PotList: React.FC<PotListProps> = ({
             />
           </div>
           {/* saved, progressbar & target */}
-          <div className="flex flex-col gap-y-4">
+          <div className="flex flex-col justify-between gap-y-4">
             {/* saved */}
             <div className="flex justify-between items-center">
               <p className="text-preset-4 text-grey-500">Total Saved</p>
               <p className="text-preset-1 text-grey-900 font-bold">
-                ${pot.total.toFixed(2)}
+                $
+                {pot.total.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
             </div>
-            {/* barre de progression */}
-            <div
-              className="w-full h-2 p-0 bg-beige-100 rounded flex justify-start items-start"
-              ref={progressBarRef}
-            >
+            {/* barre de progression & target */}
+            <div className="flex flex-col gap-y-3.5">
+              {/* barre de progression */}
               <div
-                className={`self-stretch rounded transition-all duration-1000 ease-in-out ${
-                  isVisible ? "w-[100%]" : "w-0"
-                }`}
-                style={{
-                  width: isVisible
-                    ? `${(pot.total / pot.target) * 100}%`
-                    : "0%",
-                  backgroundColor: pot.theme,
-                }}
-              />
-            </div>
-            {/* target */}
-            <div className="flex justify-between items-center">
-              <p className="text-preset-5 text-grey-500 font-bold">
-                {((pot.total / pot.target) * 100).toFixed(1)}%
-              </p>
-              <p className="text-preset-5 text-grey-500">
-                Target of ${pot.target}
-              </p>
+                className="w-full h-2 p-0 bg-beige-100 rounded flex justify-start items-start"
+                ref={progressBarRef}
+              >
+                <div
+                  className={`self-stretch rounded transition-all duration-1000 ease-in-out ${
+                    isVisible ? "w-[100%]" : "w-0"
+                  }`}
+                  style={{
+                    width: isVisible
+                      ? `${(pot.total / pot.target) * 100}%`
+                      : "0%",
+                    backgroundColor: pot.theme,
+                  }}
+                />
+              </div>
+              {/* target */}
+              <div className="flex justify-between items-center">
+                <p className="text-preset-5 text-grey-500 font-bold">
+                  {((pot.total / pot.target) * 100).toFixed(1)}%
+                </p>
+                <p className="text-preset-5 text-grey-500">
+                  Target of ${pot.target.toLocaleString("en-US")}
+                </p>
+              </div>
             </div>
           </div>
           {/* actions */}
