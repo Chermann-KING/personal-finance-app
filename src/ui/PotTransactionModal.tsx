@@ -20,24 +20,43 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
   actionType,
 }) => {
   const [amount, setAmount] = useState<number | "">("");
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
+  const amountNumber = amount ? Number(amount) : 0;
+
   // Calcul du nouveau total après ajout ou retrait
   const newTotal =
-    actionType === "add"
-      ? pot.total + (amount ? Number(amount) : 0)
-      : pot.total - (amount ? Number(amount) : 0);
+    actionType === "add" ? pot.total + amountNumber : pot.total - amountNumber;
+
+  // Gestion des erreurs et validation des montants
+  const validateAmount = () => {
+    if (amountNumber <= 0) {
+      setError("The amount must be greater than zero.");
+      return false;
+    }
+    if (actionType === "withdraw" && amountNumber > pot.total) {
+      setError("You cannot withdraw more than the total saved in this pot.");
+      return false;
+    }
+    if (actionType === "withdraw" && newTotal < 0) {
+      setError("Withdrawal would result in a negative balance.");
+      return false;
+    }
+    setError(null);
+    return true;
+  };
 
   // Calcul de la largeur de la barre de progression pour l'ancien montant
   const currentPercentage = (pot.total / pot.target) * 100;
 
   // Calcul de la largeur de la barre de progression pour le nouveau montant
-  const newPercentage = (newTotal / pot.target) * 100;
+  const newPercentage = Math.min((newTotal / pot.target) * 100, 100);
 
   const handleSubmit = () => {
-    if (amount !== "") {
-      onSubmit(Number(amount));
+    if (validateAmount()) {
+      onSubmit(amountNumber);
       onClose();
     }
   };
@@ -106,7 +125,11 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
 
           {/* Progress Percentage */}
           <div className="flex justify-between items-center">
-            <p className="text-preset-5" style={{ color: pot.theme }}>
+            <p
+              className={`text-preset-5 font-bold ${
+                actionType === "add" ? "text-green" : "text-red"
+              }`}
+            >
               {newPercentage.toFixed(2)}%
             </p>
             <p className="text-preset-5 text-grey-500">
@@ -125,6 +148,9 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
           value={amount.toString()}
           onChange={(e) => setAmount(Number(e.target.value))}
         />
+
+        {/* Affichage de l'erreur si applicable */}
+        {error && <p className="text-preset-4 text-red">{error}</p>}
 
         {/* Action Button */}
         <Button onClick={handleSubmit} className="w-full" variant="primary">
