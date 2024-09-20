@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
-import DropdownMenu from "@/ui/BudgetCardDropDownMenu";
+import DropdownMenu from "@/ui/EditOrDeleteDropDownMenu";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
 import DeleteConfirmation from "@/ui/DeleteBudgetConfirmationPopup";
 import { useBudget } from "@/context/BudgetContext";
@@ -133,7 +133,12 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
           />
           <h2 className="text-grey-900 text-preset-2 font-bold">{category}</h2>
         </div>
-        <DropdownMenu onEdit={handleEdit} onDelete={handleDelete} />
+        <DropdownMenu
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          editLabel={"Edit Budget"}
+          deleteLabel={"Delete Budget"}
+        />
       </div>
       <div className="w-full h-32 flex-col justify-start items-start gap-4 flex">
         <div className="flex justify-start items-center gap-4">
