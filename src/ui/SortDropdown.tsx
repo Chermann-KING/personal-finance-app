@@ -54,7 +54,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   }, []);
 
   return (
-    <div className="relative w-full min-w-56" ref={dropdownRef}>
+    <div className="relative w-[113px]" ref={dropdownRef}>
       {/* bouton d'ouverture de la dropdown */}
       <button
         type="button"
