@@ -69,7 +69,10 @@ function TransactionsPage() {
         <div className="self-stretch justify-between items-center flex">
           {/* search bar */}
           <div className="w-80 flex-col justify-start items-start gap-1 inline-flex">
-            <SearchBar setSearchQuery={setSearchQuery} />
+            <SearchBar
+              setSearchQuery={setSearchQuery}
+              placeholderText="Search transaction"
+            />
           </div>
           {/* filter */}
           <div className="justify-end items-center gap-6 flex">
