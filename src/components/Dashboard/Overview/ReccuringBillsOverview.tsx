@@ -16,7 +16,7 @@ const ReccuringBillsOverview: React.FC<ReccuringBillsOverviewProps> = ({
   const router = useRouter();
 
   const handleSeeDetails = () => {
-    router.push("/dashboard/bills");
+    router.push("/dashboard/recuring-bills");
   };
 
   return (
