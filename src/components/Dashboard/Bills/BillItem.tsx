@@ -46,11 +46,7 @@ const BillItem: React.FC<BillItemProps> = ({ bill }) => {
       {/* Date et icône */}
       <div className="w-[120px] text-left flex justify-start items-center gap-x-2">
         {/* Date */}
-        <p
-          className={`text-${
-            dueSoon ? "red" : isPaid ? "green" : "grey-500"
-          } text-preset-5`}
-        >
+        <p className={`text-${isPaid ? "green" : "grey-500"} text-preset-5`}>
           {dueDateText}
         </p>
 
