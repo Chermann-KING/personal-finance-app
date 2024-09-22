@@ -63,10 +63,22 @@ export const BillProvider: React.FC<{ children: ReactNode }> = ({
 
   // Appliquer le tri
   const sortedBills = filteredBills.sort((a, b) => {
-    if (sortBy === "Latest") {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    switch (sortBy) {
+      case "Latest":
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      case "Oldest":
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      case "A to Z":
+        return a.name.localeCompare(b.name);
+      case "Z to A":
+        return b.name.localeCompare(a.name);
+      case "Highest":
+        return b.amount - a.amount;
+      case "Lowest":
+        return a.amount - b.amount;
+      default:
+        return 0;
     }
-    return 0; // Ajouter d'autres options de tri ici
   });
 
   return (
