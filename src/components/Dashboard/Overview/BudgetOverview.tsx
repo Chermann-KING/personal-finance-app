@@ -40,10 +40,10 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
   };
 
   return (
-    <div className="w-[428px] h-[410px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8">
+    <div className="md:w-[428px] self-stretch flex flex-col justify-start sm:gap-y-5 gap-y-5 bg-white rounded-xl sm:p-8 px-5 py-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-preset-2 text-grey-900">Budgets</h2>
+        <h2 className="text-preset-2 text-grey-900 font-bold">Budgets</h2>
         <button
           type="button"
           className="flex items-center gap-x-3 text-preset-4 text-grey-500"
@@ -54,12 +54,12 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({ budgets }) => {
       </div>
 
       {/* Budget Chart */}
-      <div className="mt-5 flex justify-between items-center gap-x-3">
+      <div className="flex flex-col justify-between items-center sm:flex-row sm:gap-x-4 gap-y-4 pb-3">
         {/* Doughnut Chart avec les dépenses réelles */}
         <DoughnutChart data={data} spent={spent} limit={limit} />
 
         {/* Budget Details : affiche les maximums des budgets */}
-        <div className="h-[220px] grid grid-cols-1 gap-y-4">
+        <div className="self-stretch grid sm:grid-cols-1 grid-cols-2 gap-y-4">
           {budgets.map((budget, index) => (
             <div
               key={index}

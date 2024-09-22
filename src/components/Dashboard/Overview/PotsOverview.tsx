@@ -2,14 +2,7 @@ import React from "react";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import PotIcon from "@/assets/images/icon-pot.svg";
 import { useRouter } from "next/navigation";
-
-interface Pot {
-  name: string;
-  target: number;
-  total: number;
-  theme: string;
-}
-
+import { Pot } from "@/types";
 interface PotsOverviewProps {
   pots: Pot[];
 }
@@ -28,10 +21,10 @@ const PotsOverview: React.FC<PotsOverviewProps> = ({ pots }) => {
   };
 
   return (
-    <div className="w-[608px] h-[218px] flex flex-col justify-between bg-white rounded-lg p-8">
+    <div className="bg-white self-stretch flex flex-col justify-between items-start gap-y-5 px-5 py-6 rounded-xl">
       {/* header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-preset-2 text-grey-900">Pots</h2>
+      <div className="self-stretch flex justify-between items-center">
+        <h2 className="text-preset-2 text-grey-900 font-bold">Pots</h2>
         <button
           type="button"
           className="flex items-center gap-x-3 text-preset-4 text-grey-500"
@@ -41,21 +34,21 @@ const PotsOverview: React.FC<PotsOverviewProps> = ({ pots }) => {
         </button>
       </div>
 
-      {/* bottom */}
-      <div className="flex justify-between items-center">
+      {/* contents */}
+      <div className="self-stretch flex flex-col justify-between items-start sm:flex-row sm:gap-x-5 gap-y-5">
         {/* Total Saved */}
-        <div className="w-[247px] h-[110px] flex items-center gap-x-4 bg-beige-100 p-4 rounded-xl">
+        <div className="self-stretch sm:w-full flex items-center gap-x-4 bg-beige-100 p-4 rounded-xl">
           <PotIcon className={"text-green"} />
-          <div>
-            <p className="text-preset-4 text-grey-500">Total Saved</p>
-            <h3 className="text-preset-1 text-grey-900">
-              ${totalSaved.toFixed(2)}
-            </h3>
+          <div className="flex flex-col gap-y-3">
+            <span className="text-preset-4 text-grey-500">Total Saved</span>
+            <span className="text-preset-1 text-grey-900 font-bold">
+              ${Math.trunc(totalSaved)}
+            </span>
           </div>
         </div>
 
         {/* Pots */}
-        <div className="grid grid-cols-2 grid-rows-2 gap-x-12 gap-y-4">
+        <div className="min-w-[303px] grid grid-cols-2 grid-rows-2 gap-x-12 gap-y-4">
           {displayedPots.map((pot) => (
             <div
               key={pot.name}
@@ -70,7 +63,7 @@ const PotsOverview: React.FC<PotsOverviewProps> = ({ pots }) => {
               <div className="pl-3">
                 <p className="text-preset-5 text-grey-500">{pot.name}</p>
                 <p className="text-preset-4 font-bold text-grey-900">
-                  ${pot.total.toFixed(2)}
+                  ${Math.trunc(pot.total)}
                 </p>
               </div>
             </div>

@@ -3,14 +3,7 @@ import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/utils/formatCurrency";
-
-interface Transaction {
-  name: string;
-  category: string;
-  date: string;
-  amount: number;
-  avatar: string;
-}
+import { Transaction } from "@/types";
 
 interface TransactionsOverviewProps {
   transactions: Transaction[];
@@ -26,10 +19,10 @@ const TransactionsOverview: FC<TransactionsOverviewProps> = ({
   };
 
   return (
-    <div className="w-[608px] h-[519px] flex flex-col justify-start gap-y-8 bg-white rounded-lg p-8">
+    <div className="self-stretch flex flex-col gap-y-7 bg-white rounded-xl px-5 pt-6 pb-1 sm:pt-8 ">
       {/* header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-preset-2 text-grey-900">Transactions</h2>
+        <h2 className="text-preset-2 text-grey-900 font-bold">Transactions</h2>
         <button
           type="button"
           className="flex items-center gap-x-3 text-preset-4 text-grey-500"
@@ -38,6 +31,8 @@ const TransactionsOverview: FC<TransactionsOverviewProps> = ({
           View All <CaretRightIcon />
         </button>
       </div>
+
+      {/* contents */}
       <ul className="divide-y divide-solid divide-grey-100">
         {transactions.map((transaction, index) => (
           <li key={index} className="flex justify-between items-center py-5">
@@ -61,10 +56,14 @@ const TransactionsOverview: FC<TransactionsOverviewProps> = ({
                   transaction.amount < 0 ? "text-grey-900" : "text-green"
                 }`}
               >
-                {formatCurrency(transaction.amount)}
+                {formatCurrency(transaction.amount, true)}
               </p>
               <p className="text-preset-5 text-grey-500">
-                {new Date(transaction.date).toLocaleDateString()}
+                {new Date(transaction.date).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
               </p>
             </div>
           </li>
