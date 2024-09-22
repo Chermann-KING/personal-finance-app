@@ -1,24 +1,13 @@
 import React from "react";
 import Image from "next/image";
 import { Transaction } from "@/types";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
-  // Formater le montant avec un signe positif ou négatif
-  const formatCurrency = (amount: number) => {
-    const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    });
-
-    return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`;
-  };
-
-  // console.log("Transaction item:", transaction);
   if (!transaction) return null;
 
   return (
@@ -58,7 +47,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
             transaction.amount < 0 ? "text-grey-900" : "text-green"
           }`}
         >
-          {formatCurrency(transaction.amount)}
+          {formatCurrency(transaction.amount, true)}
         </p>
       </div>
     </li>

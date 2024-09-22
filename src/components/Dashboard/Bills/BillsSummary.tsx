@@ -1,18 +1,8 @@
-import React from "react";
+import React, { FC } from "react";
 import { useBill } from "@/context/BillContext";
+import { formatCurrency } from "@/utils/formatCurrency";
 
-// Formater le montant
-const formatCurrency = (amount: number) => {
-  const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  });
-
-  return formattedAmount;
-};
-
-const BillsSummary: React.FC = () => {
+const BillsSummary: FC = () => {
   const { paidBills, upcomingBills, dueSoonBills } = useBill();
 
   const totalPaid = paidBills.reduce(

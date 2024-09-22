@@ -1,7 +1,8 @@
-import React from "react";
+import React, { FC } from "react";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface Transaction {
   name: string;
@@ -15,24 +16,13 @@ interface TransactionsOverviewProps {
   transactions: Transaction[];
 }
 
-const TransactionsOverview: React.FC<TransactionsOverviewProps> = ({
+const TransactionsOverview: FC<TransactionsOverviewProps> = ({
   transactions,
 }) => {
   const router = useRouter();
 
   const handleSeeDetails = () => {
     router.push("/dashboard/transactions");
-  };
-
-  // Formater le montant avec un signe positif ou négatif
-  const formatCurrency = (amount: number) => {
-    const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    });
-
-    return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`;
   };
 
   return (

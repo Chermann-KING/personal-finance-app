@@ -1,17 +1,7 @@
 import React from "react";
 import RecurringBillsIcon from "@/assets/images/icon-bills-recurring-bills.svg";
 import { useBill } from "@/context/BillContext";
-
-// Formater le montant
-const formatCurrency = (amount: number) => {
-  const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  });
-
-  return formattedAmount;
-};
+import { formatCurrency } from "@/utils/formatCurrency";
 
 const TotalBills = () => {
   const { bills } = useBill();

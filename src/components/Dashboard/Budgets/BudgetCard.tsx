@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, FC } from "react";
 import Image from "next/image";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 import DropdownMenu from "@/ui/EditOrDeleteDropDownMenu";
@@ -8,6 +8,7 @@ import { useBudget } from "@/context/BudgetContext";
 import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
 import { useRouter } from "next/navigation";
 import { createSlug } from "@/lib/slug";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface Transaction {
   avatar: string;
@@ -25,7 +26,7 @@ interface BudgetCardProps {
   latestTransactions: Transaction[];
 }
 
-const BudgetCard: React.FC<BudgetCardProps> = ({
+const BudgetCard: FC<BudgetCardProps> = ({
   category,
   maximum,
   spent,
@@ -102,17 +103,6 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
   const confirmDeleteBudget = () => {
     deleteBudget(category);
     closeDeletePopup();
-  };
-
-  // Formater le montant avec un signe positif ou négatif
-  const formatCurrency = (amount: number) => {
-    const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    });
-
-    return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`;
   };
 
   return (
@@ -224,7 +214,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({
               </div>
               <div className="flex flex-col justify-center items-end gap-1">
                 <p className="text-right text-grey-900 text-xs font-bold">
-                  {formatCurrency(transaction.amount)}
+                  {formatCurrency(transaction.amount, true)}
                 </p>
                 <p className="text-grey-300 text-preset-5">
                   {new Date(transaction.date).toLocaleDateString("en-GB", {
