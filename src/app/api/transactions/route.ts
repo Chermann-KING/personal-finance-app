@@ -29,12 +29,23 @@ export async function GET(req: Request) {
     );
   }
 
-  // Tri par date
+  // Trier
   transactions = transactions.sort((a, b) => {
-    if (sort === "Latest") {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    } else {
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    switch (sort) {
+      case "Latest":
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      case "Oldest":
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      case "A to Z":
+        return a.name.localeCompare(b.name);
+      case "Z to A":
+        return b.name.localeCompare(a.name);
+      case "Highest":
+        return b.amount - a.amount;
+      case "Lowest":
+        return a.amount - b.amount;
+      default:
+        return 0;
     }
   });
 
