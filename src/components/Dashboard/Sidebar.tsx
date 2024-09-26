@@ -59,9 +59,9 @@ const Sidebar = () => {
     <>
       {/* Sidebar pour les écrans moyens et plus */}
       <aside
-        className={`hidden md:flex flex-col justify-between bg-grey-900 transition-all duration-300 ${
+        className={`hidden md:flex flex-col justify-between pr-[22px] bg-grey-900 transition-all duration-300 ${
           isOpen ? "w-[300px]" : "w-[88px]"
-        } py-9 pr-6 rounded-r-2xl min-h-screen`}
+        } py-9 rounded-r-2xl min-h-screen`}
       >
         {/* Logo */}
         <div className="flex items-center justify-between text-white p-5">
@@ -85,7 +85,7 @@ const Sidebar = () => {
             >
               {/* icon */}
               <span
-                className={`w-6 h-6 ${
+                className={`w-auto h-6 ${
                   pathname === item.route ? "text-green" : ""
                 }`}
               >

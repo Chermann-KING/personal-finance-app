@@ -57,32 +57,28 @@ function TransactionsPage() {
   }, [fetchData]);
 
   return (
-    <div className="flex-grow h-auto px-10 py-9 flex-col justify-start items-center gap-8">
+    <div className="flex-grow h-auto max-w-[1140px] py-9 flex-col justify-start items-center gap-8">
       {/* title page */}
-      <div className="mb-10 mx-auto w-[1140px] h-14 py-2 justify-start items-center gap-6">
+      <div className="mb-10 mx-auto max-w-[1140px] h-14 py-2 justify-start items-center gap-6">
         <h1 className="text-grey-900 text-preset-1 font-bold">Transactions</h1>
       </div>
 
       {/* content */}
-      <div className="mx-auto w-[1140px] p-8 bg-white rounded-xl flex-col justify-start items-start">
+      <div className="mx-auto w-full p-8 bg-white rounded-xl flex-col justify-start items-start">
         {/* actions */}
-        <div className="self-stretch justify-between items-center flex">
+        <div className="self-stretch flex flex-row justify-between items-center gap-4 sm:gap-6 ">
           {/* search bar */}
-          <div className="w-80 flex-col justify-start items-start gap-1 inline-flex">
-            <SearchBar
-              setSearchQuery={setSearchQuery}
-              placeholderText="Search transaction"
-            />
-          </div>
-          {/* filter */}
-          <div className="justify-end items-center gap-6 flex">
-            {/* sort by */}
+          <SearchBar
+            setSearchQuery={setSearchQuery}
+            placeholderText="Search transaction"
+          />
+          {/* sort & filter */}
+          <div className="w-full sm:w-auto  flex justify-end items-center gap-2 sm:gap-6 ">
             <SortDropdown
               label={true}
               setSortBy={setSortBy}
               setCurrentPage={setCurrentPage}
             />
-            {/* category */}
             <CategoriesDropdown
               label={true}
               onOptionChange={(option) => setCategoryFilter(option)}

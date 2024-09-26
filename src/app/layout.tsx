@@ -36,7 +36,7 @@ export default function RootLayout({
               <Sidebar />
             </div>
           )}
-          <main className="flex-grow bg-beige-100 overflow-y-auto px-10">
+          <main className="flex-grow flex justify-center bg-beige-100 overflow-y-auto px-4 sm:px-10 md:px-10 border border-green">
             {children}
           </main>
         </div>
