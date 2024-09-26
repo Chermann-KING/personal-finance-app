@@ -38,7 +38,11 @@ const RecurringBillsPage = () => {
             {/* sort by */}
             <div className="w-[169px] flex justify-between items-center">
               <span className="text-grey-500 text-preset-4">Sort by</span>
-              <SortDropdown setSortBy={setSortBy} setCurrentPage={() => {}} />
+              <SortDropdown
+                setSortBy={setSortBy}
+                setCurrentPage={() => {}}
+                label={true}
+              />
             </div>
           </div>
           <BillsList bills={bills} />
