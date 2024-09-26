@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
-import FilterMobileIcon from "@/assets/images/icon-filter-mobile.svg";
+import SortMobileIcon from "@/assets/images/icon-sort-mobile.svg";
 
 type SortDropdownOptions =
   | "Latest"
@@ -58,15 +58,29 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
 
   return (
     <div className="justify-start items-center gap-2 flex">
-      {/* title */}
-      {label && <label className="text-grey-500 text-preset-4">Sort by</label>}
+      {/* label visible uniquement sur les écrans sm (>= 640px) */}
+      {label && (
+        <label className="hidden sm:block text-grey-500 text-preset-4">
+          Sort by
+        </label>
+      )}
+
       <div className="flex-col justify-start items-start gap-1 inline-flex">
         <div className="relative w-[113px]" ref={dropdownRef}>
-          {/* bouton d'ouverture de la dropdown */}
+          {/* Bouton pour le tri visible sur mobile uniquement */}
           <button
             type="button"
             onClick={toggleDropdown}
-            className="inline-flex justify-between items-center w-full bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
+            className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none"
+          >
+            <SortMobileIcon />
+          </button>
+
+          {/* Bouton d'ouverture du dropdown visible uniquement sur les écrans sm (>= 640px) */}
+          <button
+            type="button"
+            onClick={toggleDropdown}
+            className="hidden sm:inline-flex justify-between items-center w-full bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
           >
             <span>{selectedOption}</span>
             <CaretDownIcon
@@ -74,7 +88,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
             />
           </button>
 
-          {/* dropdown */}
+          {/* Dropdown menu visible après clic sur l'icône de tri (mobile) ou bouton (desktop) */}
           <div
             role="listbox"
             className={`h-auto max-h-[333px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 w-full mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transform transition-all duration-300 ease-in-out ${
