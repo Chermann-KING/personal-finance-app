@@ -83,16 +83,10 @@ function TransactionsPage() {
               setCurrentPage={setCurrentPage}
             />
             {/* category */}
-            <div className="justify-start items-center gap-2 flex">
-              {/* title */}
-              <div className="text-grey-500 text-preset-4">Category</div>
-              {/* dropdown category */}
-              <div className="flex-col justify-start items-start gap-1 inline-flex">
-                <CategoriesDropdown
-                  onOptionChange={(option) => setCategoryFilter(option)}
-                />
-              </div>
-            </div>
+            <CategoriesDropdown
+              label={true}
+              onOptionChange={(option) => setCategoryFilter(option)}
+            />
           </div>
         </div>
 
