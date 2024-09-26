@@ -60,7 +60,7 @@ function TransactionsPage() {
     <div className="flex-grow h-auto px-10 py-9 flex-col justify-start items-center gap-8">
       {/* title page */}
       <div className="mb-10 mx-auto w-[1140px] h-14 py-2 justify-start items-center gap-6">
-        <h1 className="text-grey-900 text-preset-1">Transactions</h1>
+        <h1 className="text-grey-900 text-preset-1 font-bold">Transactions</h1>
       </div>
 
       {/* content */}
@@ -77,17 +77,11 @@ function TransactionsPage() {
           {/* filter */}
           <div className="justify-end items-center gap-6 flex">
             {/* sort by */}
-            <div className="justify-start items-center gap-2 flex">
-              {/* title */}
-              <div className="text-grey-500 text-preset-4">Sort by</div>
-              {/* dropdown sort by */}
-              <div className="flex-col justify-start items-start gap-1 inline-flex">
-                <SortDropdown
-                  setSortBy={setSortBy}
-                  setCurrentPage={setCurrentPage}
-                />
-              </div>
-            </div>
+            <SortDropdown
+              label={true}
+              setSortBy={setSortBy}
+              setCurrentPage={setCurrentPage}
+            />
             {/* category */}
             <div className="justify-start items-center gap-2 flex">
               {/* title */}
