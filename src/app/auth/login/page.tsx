@@ -63,9 +63,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center  bg-beige-100 p-5">
+    <div className="min-h-screen grid grid-cols-3 bg-beige-100 p-5">
       {/* Colonne de gauche : Illustration */}
-      <div className="hidden relative md:flex flex-col justify-center items-center  max-w-[560px] max-h-[920px] overflow-hidden rounded-lg">
+      <div className="col-span-1 hidden relative lg:flex flex-col justify-center items-center  max-w-[560px] max-h-[920px] overflow-hidden rounded-lg">
         <LogoLarge className={"absolute left-10 top-10 z-30 text-white"} />
         <div className="absolute left-0 bottom-10 text-left pl-10 pr-20">
           <h2 className="text-white text-preset-1 mb-4">
@@ -80,10 +80,10 @@ export default function LoginPage() {
       </div>
 
       {/* Colonne de droite : Formulaire */}
-      <div className="flex justify-center items-center flex-grow md:w-1/2 p-8">
+      <div className="col-span-3 lg:col-span-2 flex justify-center items-center flex-grow w-full px-4 py-6 sm:p-8">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col justify-center gap-y-9 bg-white w-[560px]  shadow-md rounded-lg px-8 py-9"
+          className=" w-[343px] sm:w-[560px] flex flex-col justify-center gap-8 sm:gap-y-9 bg-white  shadow-md rounded-lg px-5 py-6 sm:px-8 sm:py-9"
         >
           <h2 className="text-preset-1">Login</h2>
           {errorMessage && (
@@ -114,7 +114,6 @@ export default function LoginPage() {
                   />
                 )
               }
-              helperText="Passwords must be at least 8 characters"
             />
           </div>
           <Button type="submit" variant="primary">
