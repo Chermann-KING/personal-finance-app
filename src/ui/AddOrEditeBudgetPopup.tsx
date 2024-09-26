@@ -84,6 +84,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
             <CategoriesDropdown
               initialSelectedOption={category}
               onOptionChange={setCategory}
+              label={true}
             />
           </div>
           <InputField
