@@ -18,7 +18,7 @@ export default function HomePage() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="h-screen flex bg-beige-100">
+    <div className="h-screen flex">
       {/* LEFT */}
       <Illustration />
       {/* RIGHT */}

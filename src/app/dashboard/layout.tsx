@@ -10,8 +10,8 @@ export default function DashboardLayout({
       {/* LEFT */}
       <Sidebar />
       {/* RIGHT */}
-      <div className="w-full overflow-y-scroll flex flex-col px-4 py-6 md:px-10 md:py-8 ">
-        {children}
+      <div className="w-full overflow-y-scroll flex flex-col items-center px-4 py-6 md:px-10 md:py-8">
+        <div className="max-w-[1060px]">{children}</div>
       </div>
     </div>
   );

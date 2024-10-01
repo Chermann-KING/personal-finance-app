@@ -65,59 +65,54 @@ export default function OverviewPage() {
   }
 
   return (
-    <div className="mx-8 flex flex-col items-center gap-y-8 px-4 py-8 pb-[93px] sm:px-10">
-      {/* contents */}
-      <div className="max-w-[1060px] flex flex-col gap-y-8">
-        {/* Header */}
-        <HeaderPage />
-        {/* currence balance, icome & expenses */}
-        <div className="flex flex-col gap-y-3 sm:gap-x-6 sm:flex-row">
-          <CurrentBalance currentBalance={data.balance.current} />
-          <Income income={data.balance.income} />
-          <Expenses expenses={data.balance.expenses} />
+    <div className="self-stretch flex flex-col gap-y-8">
+      {/* Header */}
+      <HeaderPage />
+      {/* currence balance, icome & expenses */}
+      <div className="flex flex-col gap-y-3 sm:gap-x-6 sm:flex-row">
+        <CurrentBalance currentBalance={data.balance.current} />
+        <Income income={data.balance.income} />
+        <Expenses expenses={data.balance.expenses} />
+      </div>
+
+      {/* pots, transactions, budgets & recurring bills */}
+      <div className=" flex justify-between sm:gap-x-6 gap-y-6 max-md:flex-col">
+        {/* Pots & Transactions */}
+        <div className="flex flex-col gap-y-4 sm:gap-y-6">
+          {/* Pots Overview */}
+          <PotsOverview pots={data.pots} />
+
+          {/* Recent Transactions */}
+          <TransactionsOverview transactions={data.transactions.slice(0, 5)} />
         </div>
 
-        {/* pots, transactions, budgets & recurring bills */}
-        <div className=" flex justify-between sm:gap-x-6 gap-y-6 max-md:flex-col">
-          {/* Pots & Transactions */}
-          <div className="flex flex-col gap-y-4 sm:gap-y-6">
-            {/* Pots Overview */}
-            <PotsOverview pots={data.pots} />
+        {/* Budgets & Bills */}
+        <div className="flex flex-col gap-y-6">
+          {/* Budget Overview */}
+          <BudgetOverview
+            budgets={data.budgets.map((budget: Budget) => ({
+              category: budget.category,
+              maximum: budget.maximum,
+              spent: data.transactions
+                .filter(
+                  (transaction: Transaction) =>
+                    transaction.category === budget.category
+                )
+                .reduce(
+                  (acc: number, curr: Transaction) =>
+                    acc + (curr.amount < 0 ? -curr.amount : 0),
+                  0
+                ),
+              theme: budget.theme,
+            }))}
+          />
 
-            {/* Recent Transactions */}
-            <TransactionsOverview
-              transactions={data.transactions.slice(0, 5)}
-            />
-          </div>
-
-          {/* Budgets & Bills */}
-          <div className="flex flex-col gap-y-6">
-            {/* Budget Overview */}
-            <BudgetOverview
-              budgets={data.budgets.map((budget: Budget) => ({
-                category: budget.category,
-                maximum: budget.maximum,
-                spent: data.transactions
-                  .filter(
-                    (transaction: Transaction) =>
-                      transaction.category === budget.category
-                  )
-                  .reduce(
-                    (acc: number, curr: Transaction) =>
-                      acc + (curr.amount < 0 ? -curr.amount : 0),
-                    0
-                  ),
-                theme: budget.theme,
-              }))}
-            />
-
-            {/* Reccuring Bills */}
-            <ReccuringBillsOverview
-              paid={data.bills.paid}
-              upcoming={data.bills.upcoming}
-              dueSoon={data.bills.dueSoon}
-            />
-          </div>
+          {/* Reccuring Bills */}
+          <ReccuringBillsOverview
+            paid={data.bills.paid}
+            upcoming={data.bills.upcoming}
+            dueSoon={data.bills.dueSoon}
+          />
         </div>
       </div>
     </div>

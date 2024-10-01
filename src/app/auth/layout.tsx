@@ -6,7 +6,7 @@ export default function SingnISingOutLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-screen flex bg-beige-100">
+    <div className="h-screen flex">
       {/* LEFT */}
       <Illustration />
       {/* RIGHT */}

@@ -21,7 +21,7 @@ const ReccuringBillsOverview: FC<ReccuringBillsOverviewProps> = ({
   };
 
   return (
-    <div className="self-stretch flex flex-col justify-between gap-y-8 bg-white rounded-xl p-8">
+    <div className="self-stretch flex flex-col justify-between gap-y-8 bg-white rounded-xl px-5 py-6 sm:p-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-preset-2 text-grey-900 font-bold">
