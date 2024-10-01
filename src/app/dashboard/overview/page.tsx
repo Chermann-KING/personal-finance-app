@@ -66,8 +66,8 @@ export default function OverviewPage() {
 
   return (
     <div className="self-stretch flex flex-col gap-y-8">
-      {/* Header */}
-      <HeaderPage />
+      {/* header */}
+      <HeaderPage title="Overview" />
       {/* currence balance, icome & expenses */}
       <div className="flex flex-col gap-y-3 sm:gap-x-6 sm:flex-row">
         <CurrentBalance currentBalance={data.balance.current} />

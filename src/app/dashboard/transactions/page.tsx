@@ -10,6 +10,7 @@ import {
   useTransactionContext,
   TransactionProvider,
 } from "@/context/TransactionContext";
+import HeaderPage from "@/components/Dashboard/HeaderPage";
 
 function TransactionsPage() {
   const { transactions, fetchTransactions } = useTransactionContext();
@@ -57,14 +58,12 @@ function TransactionsPage() {
   }, [fetchData]);
 
   return (
-    <div className="flex-grow h-auto max-w-[1140px] py-9 flex-col justify-start items-center gap-8">
-      {/* title page */}
-      <div className="mb-10 mx-auto max-w-[1140px] h-14 py-2 justify-start items-center gap-6">
-        <h1 className="text-grey-900 text-preset-1 font-bold">Transactions</h1>
-      </div>
+    <div className="self-stretch flex flex-col gap-y-8">
+      {/* Header */}
+      <HeaderPage title={"Transactions"} />
 
       {/* content */}
-      <div className="mx-auto w-full p-8 bg-white rounded-xl flex-col justify-start items-start">
+      <div className="self-stretch p-8 bg-white rounded-xl flex-col justify-start items-start">
         {/* actions */}
         <div className="self-stretch flex flex-row justify-between items-center gap-4 sm:gap-6 ">
           {/* search bar */}

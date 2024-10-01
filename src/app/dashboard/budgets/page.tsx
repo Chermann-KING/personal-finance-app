@@ -2,13 +2,13 @@
 
 import Budgets from "@/components/Dashboard/Budgets/Budgets";
 import BudgetCards from "@/components/Dashboard/Budgets/BudgetCards";
-import Button from "@/ui/Button";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
 import { useState } from "react";
 import { BudgetProvider } from "@/context/BudgetContext";
 import { Budget } from "@/types";
+import HeaderPage from "@/components/Dashboard/HeaderPage";
 
-export default function BudgetsPage() {
+function BudgetsPage() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const handleAddBudgetClick = () => {
@@ -21,34 +21,35 @@ export default function BudgetsPage() {
   };
 
   return (
-    <BudgetProvider>
-      {/* Utilisation du contexte ici */}
-      <div className="px-10 py-9 flex flex-col justify-start items-center gap-8">
-        {/* header */}
-        <div className=" mx-auto w-[1060px] h-14 py-2 flex justify-between items-center gap-6">
-          <h1 className="text-grey-900 text-preset-1">Budgets</h1>
-          <Button
-            type="button"
-            variant={"primary"}
-            onClick={handleAddBudgetClick}
-          >
-            + Add New Budget
-          </Button>
-        </div>
+    <div className="self-stretch flex flex-col gap-y-8">
+      {/* header */}
+      <HeaderPage
+        title="Budgets"
+        showButton
+        buttonText="+ Add New Budget"
+        onButtonClick={handleAddBudgetClick}
+      />
 
-        <div className="mx-auto w-[1060px] flex gap-6">
-          {/* BudgetPopup */}
-          <BudgetPopup
-            isOpen={isPopupOpen}
-            onClose={() => setIsPopupOpen(false)}
-            onSubmit={handleBudgetSubmit}
-          />
-          {/* doughnut & spending summary */}
-          <Budgets />
-          {/* categories budget */}
-          <BudgetCards />
-        </div>
+      <div className="flex gap-6">
+        {/* popup */}
+        <BudgetPopup
+          isOpen={isPopupOpen}
+          onClose={() => setIsPopupOpen(false)}
+          onSubmit={handleBudgetSubmit}
+        />
+        {/* doughnut & spending summary */}
+        <Budgets />
+        {/* categories budget */}
+        <BudgetCards />
       </div>
+    </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <BudgetProvider>
+      <BudgetsPage />
     </BudgetProvider>
   );
 }
