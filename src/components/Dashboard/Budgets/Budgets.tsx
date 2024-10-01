@@ -26,7 +26,7 @@ const Budgets: React.FC = () => {
     ],
   };
   return (
-    <div className="w-[428px] h-[599px] flex flex-col justify-evenly gap-y-8 bg-white rounded-lg p-8 py-3 ">
+    <div className="self-stretch h-[599px] flex flex-col justify-evenly gap-y-8 bg-white rounded-lg p-8 py-3">
       {/* Doughnut Chart */}
       <DoughnutChart data={doughnutData} spent={spent} limit={limit} />
 

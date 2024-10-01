@@ -106,7 +106,8 @@ const BudgetCard: FC<BudgetCardProps> = ({
   };
 
   return (
-    <div className="w-[608px] p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
+    // w-[608px]
+    <div className="w-full p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
       {/* Popup d'édition du budget */}
       <BudgetPopup
         isOpen={isEditPopupOpen}

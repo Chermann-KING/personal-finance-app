@@ -30,17 +30,22 @@ function BudgetsPage() {
         onButtonClick={handleAddBudgetClick}
       />
 
-      <div className="flex gap-6">
-        {/* popup */}
-        <BudgetPopup
-          isOpen={isPopupOpen}
-          onClose={() => setIsPopupOpen(false)}
-          onSubmit={handleBudgetSubmit}
-        />
+      {/* popup */}
+      <BudgetPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        onSubmit={handleBudgetSubmit}
+      />
+      <div className="flex flex-col md:flex-row gap-6 sm:pb-[74px] lg:pb-0">
         {/* doughnut & spending summary */}
-        <Budgets />
+        <div className="max-sm:w-full max-md:w-[608px] w-[428px]">
+          <Budgets />
+        </div>
+
         {/* categories budget */}
-        <BudgetCards />
+        <div className="max-sm:w-full max-md:w-[608px] w-[608px]">
+          <BudgetCards />
+        </div>
       </div>
     </div>
   );

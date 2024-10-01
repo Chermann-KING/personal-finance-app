@@ -7,7 +7,7 @@ export default function BudgetCards() {
   const { budgets, transactions } = useBudget();
 
   return (
-    <div className="flex flex-col items-center gap-y-6">
+    <div className="self-stretch flex flex-col items-center gap-y-6">
       {budgets.map((budget) => {
         const categoryTransactions = transactions.filter(
           (transaction) => transaction.category === budget.category
