@@ -1,22 +1,57 @@
 import { useState, useEffect, useRef } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
 
+/**
+ * Type représentant un propriétaire de couleur.
+ * @typedef {Object} ColorOwner
+ * @property {string} theme - La couleur utilisée (valeur hexadécimale).
+ */
 interface ColorOwner {
   theme: string;
 }
 
+/**
+ * Type représentant une couleur.
+ * @typedef {Object} Color
+ * @property {string} name - Le nom de la couleur.
+ * @property {string} value - La valeur hexadécimale de la couleur.
+ * @property {boolean} used - Indique si la couleur est déjà utilisée.
+ */
 type Color = {
   name: string;
   value: string;
   used: boolean;
 };
 
+/**
+ * Props pour le composant ColorsDropdown.
+ * @property {string} selectedColor - La couleur actuellement sélectionnée (valeur hexadécimale).
+ * @property {function} onSelectColor - Fonction de rappel pour mettre à jour la couleur sélectionnée.
+ * @property {ColorOwner[]} existingColors - Tableau des couleurs déjà utilisées dans d'autres contextes (budgets ou pots).
+ */
 interface ColorsDropdownProps {
   selectedColor: string;
   onSelectColor: (color: string) => void;
   existingColors: ColorOwner[];
 }
 
+/**
+ * Tableau contenant les couleurs disponibles pour la sélection.
+ *
+ * Chaque objet dans ce tableau représente une couleur avec trois propriétés :
+ * - `name` : Le nom de la couleur (ex: "Green").
+ * - `value` : La valeur hexadécimale de la couleur (ex: "#277C78").
+ * - `used` : Un booléen qui indique si la couleur est déjà utilisée ou non (par défaut: `false`).
+ *
+ * Ce tableau est utilisé pour fournir des options de couleurs dans le composant `ColorsDropdown`.
+ * Les couleurs marquées comme `used: true` sont désactivées et ne peuvent pas être sélectionnées.
+ * Les couleurs sont affichées avec leur nom et un point coloré pour chaque option.
+ *
+ * @typedef {Object} Color
+ * @property {string} name - Le nom de la couleur.
+ * @property {string} value - La valeur hexadécimale de la couleur.
+ * @property {boolean} used - Indique si la couleur est déjà utilisée ou non.
+ */
 const colors: Color[] = [
   { name: "Green", value: "#277C78", used: false },
   { name: "Yellow", value: "#F2CDAC", used: false },
@@ -35,6 +70,15 @@ const colors: Color[] = [
   { name: "Orange", value: "#BE6C49", used: false },
 ];
 
+/**
+ * Composant ColorsDropdown pour sélectionner une couleur.
+ *
+ * Ce composant affiche une liste de couleurs disponibles et gère l'état de celles qui sont déjà utilisées.
+ * Il permet de sélectionner une couleur non utilisée pour la passer à un composant parent via la fonction `onSelectColor`.
+ *
+ * @param {ColorsDropdownProps} props - Les props nécessaires pour configurer le ColorsDropdown.
+ * @returns JSX.Element
+ */
 const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   selectedColor,
   onSelectColor,
@@ -44,22 +88,28 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   const [availableColors, setAvailableColors] = useState<Color[]>(colors);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Vérifier les couleurs utilisées dans les budgets ou les pots existants
+  // Vérifie les couleurs utilisées et met à jour l'état des couleurs disponibles
   useEffect(() => {
     const usedColors = existingColors.map((item) => item.theme);
     const updatedColors = colors.map((color) => ({
       ...color,
-      used: usedColors.includes(color.value), // Marquer comme "used" si la couleur est déjà utilisée
+      used: usedColors.includes(color.value), // Marque la couleur comme utilisée si elle est présente dans `existingColors`
     }));
     setAvailableColors(updatedColors);
   }, [existingColors]);
 
+  /**
+   * Gère la sélection d'une couleur et ferme la liste déroulante.
+   * @param {Color} color - La couleur sélectionnée.
+   */
   const handleSelectColor = (color: Color) => {
     onSelectColor(color.value);
     setIsOpen(false);
   };
 
-  // Fonction permettant de gérer les clics en dehors de la dropdown
+  /**
+   * Ferme la liste déroulante si un clic est effectué en dehors du composant.
+   */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -69,10 +119,8 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
         setIsOpen(false);
       }
     };
-    // Attache l'écouteur d'événement
-    document.addEventListener("mousedown", handleClickOutside);
 
-    // Nettoie l'écouteur d'événements lors du démontage du composant
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -84,28 +132,26 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
 
   return (
     <div className="relative w-full min-w-56" ref={dropdownRef}>
-      {/* Button to open dropdown */}
+      {/* Bouton pour ouvrir le dropdown */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="inline-flex justify-between items-center w-full bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
       >
-        {/* color dot & label */}
+        {/* Point de couleur et libellé */}
         <span className="flex items-center">
           <span
             className="h-4 w-4 rounded-full mr-3"
             style={{ backgroundColor: selectedColor }}
           ></span>
-          {/* label */}
           <span className="text-gray-900 text-preset-4">
             {selectedColorName}
           </span>
         </span>
-        {/* icon */}
         <CaretDownIcon className={`transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
-      {/* Dropdown list */}
+      {/* Liste déroulante des couleurs */}
       <div
         className={`h-[300px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 w-full mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transition-all duration-300 ease-in-out ${
           isOpen
@@ -124,23 +170,21 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
             }`}
             onClick={() => !color.used && handleSelectColor(color)}
           >
-            {/* dot & label */}
+            {/* Point de couleur et étiquette */}
             <div className="flex items-center">
-              {/* dot */}
               <span
                 className={`h-4 w-4 rounded-full mr-3 ${
                   color.used ? "opacity-10" : "opacity-100"
                 }`}
                 style={{ backgroundColor: color.value }}
               ></span>
-              {/* label */}
               <span
                 className={`${color.used ? "text-gray-900" : "text-gray-900"}`}
               >
                 {color.name}
               </span>
             </div>
-            {/* status */}
+            {/* État de la couleur */}
             {color.used && (
               <span className="text-[0.875rem]">Already used</span>
             )}

@@ -12,21 +12,40 @@ import ToggleSidebarIcon from "@/assets/images/icon-minimize-menu.svg";
 import LogoLarge from "@/assets/images/logo-large.svg";
 import LogoSmall from "@/assets/images/logo-small.svg";
 
+/**
+ * Type représentant un élément du menu latéral (Sidebar).
+ * @property {string} label - Le texte affiché pour l'élément.
+ * @property {JSX.Element} icon - L'icône associée à l'élément.
+ * @property {string} route - La route à laquelle l'élément redirige lorsqu'il est cliqué.
+ */
 type SidebarItem = {
   label: string;
   icon: JSX.Element;
   route: string;
 };
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
-  const pathname = usePathname();
-  const router = useRouter();
+/**
+ * Composant `Sidebar` pour afficher le menu de navigation latéral et la barre de navigation mobile.
+ *
+ * Ce composant gère l'état d'ouverture ou de fermeture du menu latéral pour les écrans plus larges, et une navigation responsive pour les appareils mobiles.
+ *
+ * @returns {JSX.Element} - Le composant de la barre latérale et du menu de navigation mobile.
+ */
+const Sidebar = (): JSX.Element => {
+  const [isOpen, setIsOpen] = useState(true); // État d'ouverture ou de fermeture du menu
+  const pathname = usePathname(); // Chemin de la page actuelle
+  const router = useRouter(); // Utilisé pour rediriger les utilisateurs vers une autre page
 
+  /**
+   * Fonction pour basculer l'état ouvert/fermé du menu latéral.
+   */
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
+  /**
+   * Liste des éléments du menu latéral.
+   */
   const items: SidebarItem[] = [
     {
       label: "Overview",
@@ -68,7 +87,7 @@ const Sidebar = () => {
           {isOpen ? <LogoLarge /> : <LogoSmall />}
         </div>
 
-        {/* Navigation items */}
+        {/* Éléments de navigation */}
         <nav className="mt-[90px] flex flex-col flex-grow items-start space-y-4">
           {items.map((item) => (
             <button
@@ -83,7 +102,7 @@ const Sidebar = () => {
                   : "text-grey-300 border-transparent"
               }`}
             >
-              {/* icon */}
+              {/* Icône */}
               <span
                 className={`w-auto h-6 ${
                   pathname === item.route ? "text-green" : ""
@@ -91,7 +110,7 @@ const Sidebar = () => {
               >
                 {item.icon}
               </span>
-              {/* label */}
+              {/* Libellé */}
               {isOpen && (
                 <span
                   className={`pl-4 text-nowrap transition-opacity duration-500 ease-in-out ${
@@ -107,7 +126,7 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        {/* Toggle Sidebar */}
+        {/* Bouton pour basculer la barre latérale */}
         <button
           type="button"
           onClick={toggleSidebar}
@@ -144,7 +163,7 @@ const Sidebar = () => {
                 : "text-grey-300 border-transparent"
             } py-2 sm:py-3 rounded-t-2xl`}
           >
-            {/* Icon toujours visible */}
+            {/* Icône toujours visible */}
             <span
               className={`w-auto h-6 ${
                 pathname === item.route ? "text-green" : ""
@@ -152,7 +171,7 @@ const Sidebar = () => {
             >
               {item.icon}
             </span>
-            {/* Label visible sur écrans > 640px */}
+            {/* Libellé visible uniquement sur les écrans >= 640px */}
             <span className="hidden sm:block">{item.label}</span>
           </button>
         ))}

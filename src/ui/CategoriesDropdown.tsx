@@ -2,6 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
 import FilterMobileIcon from "@/assets/images/icon-filter-mobile.svg";
 
+/**
+ * Les options disponibles pour le menu déroulant de catégories.
+ * @typedef {"All Transactions" | "Entertainment" | "Bills" | "Groceries" | "Dining Out" | "Transportation" | "Personal Care" | "Education" | "Lifestyle" | "Shopping" | "General"} CategoryDropdownOptions
+ */
 export type CategoryDropdownOptions =
   | "All Transactions"
   | "Entertainment"
@@ -15,12 +19,27 @@ export type CategoryDropdownOptions =
   | "Shopping"
   | "General";
 
+/**
+ * Props pour le composant CategoriesDropdown.
+ * @property {boolean} label - Indique si un label "Category" doit être affiché (visible uniquement sur les grands écrans).
+ * @property {CategoryDropdownOptions} [initialSelectedOption] - L'option de catégorie initialement sélectionnée. Par défaut: "All Transactions".
+ * @property {function} [onOptionChange] - Fonction de rappel pour notifier le changement de l'option sélectionnée.
+ */
 interface CategoryDropdownProps {
   label: boolean;
   initialSelectedOption?: CategoryDropdownOptions;
   onOptionChange?: (option: CategoryDropdownOptions) => void;
 }
 
+/**
+ * Composant CategoriesDropdown pour permettre à l'utilisateur de sélectionner une catégorie.
+ *
+ * Ce composant est réactif et s'adapte aux différentes tailles d'écrans. Sur mobile, un bouton d'icône
+ * déclenche l'ouverture du menu déroulant, tandis que sur les écrans plus larges, un bouton "Category" est utilisé.
+ *
+ * @param {CategoryDropdownProps} props - Les props nécessaires pour configurer le CategoriesDropdown.
+ * @returns JSX.Element
+ */
 const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   label,
   initialSelectedOption = "All Transactions",
@@ -33,8 +52,16 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Ouvre ou ferme le menu déroulant.
+   */
   const toggleDropdown = () => setIsOpen(!isOpen);
 
+  /**
+   * Change l'option de catégorie sélectionnée.
+   * @param {CategoryDropdownOptions} option - L'option de catégorie sélectionnée.
+   * @param {React.MouseEvent} e - L'événement de clic pour arrêter la propagation.
+   */
   const handleOptionChange = (
     option: CategoryDropdownOptions,
     e: React.MouseEvent
@@ -47,6 +74,9 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
     setIsOpen(false);
   };
 
+  /**
+   * Ferme le menu déroulant si un clic est effectué en dehors du composant.
+   */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -68,13 +98,13 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
       className="max-w-[245px] relative flex justify-end items-center gap-x-2"
       ref={dropdownRef}
     >
-      {/* label visible uniquement sur les écrans sm (>= 640px) */}
+      {/* Label visible uniquement sur les écrans sm (>= 640px) */}
       {label && (
         <label className="hidden sm:block text-grey-500 text-preset-4">
           Category
         </label>
       )}
-      {/* Bouton pour le tri visible sur mobile uniquement */}
+      {/* Bouton pour le filtre visible sur mobile uniquement */}
       <button
         type="button"
         onClick={toggleDropdown}
@@ -100,6 +130,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
             : "opacity-0 -translate-y-2 invisible"
         }right-0 top-11 sm:top-[50px]`}
       >
+        {/* Options de catégories */}
         {(
           [
             "All Transactions",

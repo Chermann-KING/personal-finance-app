@@ -1,5 +1,17 @@
 import React from "react";
 
+/**
+ * Props pour le composant InputField.
+ * @property {string} [label] - Le texte à afficher comme étiquette pour le champ de saisie.
+ * @property {string} name - Le nom de l'input, utilisé pour l'attribut HTML `name` et `id`.
+ * @property {string} [type] - Le type du champ de saisie (text, password, email, etc.). Par défaut: "text".
+ * @property {string} [value] - La valeur actuelle de l'input.
+ * @property {string} [placeholder] - Le texte d'indication affiché lorsque l'input est vide.
+ * @property {string} [helperText] - Un texte d'aide affiché sous le champ de saisie.
+ * @property {JSX.Element} [icon] - Un élément icône à afficher à droite du champ de saisie.
+ * @property {string} [prefix] - Un préfixe à afficher avant le texte dans l'input.
+ * @property {function} [onChange] - Fonction de rappel exécutée lors du changement de la valeur du champ.
+ */
 interface InputFieldProps {
   label?: string;
   name: string;
@@ -12,10 +24,19 @@ interface InputFieldProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/**
+ * Composant InputField pour rendre un champ de saisie avec différentes options d'affichage.
+ *
+ * Ce composant prend en charge les étiquettes, les icônes, les préfixes et les textes d'aide.
+ * Il est entièrement personnalisable grâce à ses props et peut être utilisé pour différents types de champs de saisie.
+ *
+ * @param {InputFieldProps} props - Les props nécessaires pour configurer l'InputField.
+ * @returns JSX.Element
+ */
 const InputField: React.FC<InputFieldProps> = ({
   label,
   name,
-  type = "text",
+  type = "text", // Type de champ de saisie par défaut
   value,
   placeholder,
   helperText,
@@ -23,14 +44,16 @@ const InputField: React.FC<InputFieldProps> = ({
   prefix,
   onChange,
 }) => {
-  // affichage
+  // Style du placeholder
   const placeholderStyle = {
     fontSize: "0.875rem",
     letterSpacing: "0px",
     lineHeight: "150%",
   };
+
   return (
     <div className="w-full min-w-56">
+      {/* Affiche l'étiquette si elle est définie */}
       {label && (
         <label
           htmlFor={name}
@@ -39,14 +62,16 @@ const InputField: React.FC<InputFieldProps> = ({
           {label}
         </label>
       )}
+
       <div className="relative rounded-lg">
-        {/* Préfixe */}
+        {/* Préfixe avant le texte de l'input */}
         {prefix && (
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[19px]">
             <span className="text-gray-500 sm:text-sm">{prefix}</span>
           </div>
         )}
-        {/* Champ input */}
+
+        {/* Champ de saisie */}
         <input
           type={type}
           name={name}
@@ -60,14 +85,16 @@ const InputField: React.FC<InputFieldProps> = ({
           style={placeholderStyle}
           onChange={onChange}
         />
-        {/* Icône */}
+
+        {/* Icône à droite */}
         {icon && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-[19px]">
             <span className={`text-gray-500`}>{icon}</span>
           </div>
         )}
       </div>
-      {/* Texte d'aide */}
+
+      {/* Texte d'aide affiché sous l'input */}
       {helperText && (
         <p className="mt-1 text-grey-500 text-preset-5 text-right">
           {helperText}

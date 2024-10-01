@@ -4,14 +4,31 @@ import Button from "@/ui/Button";
 import InputField from "@/ui/InputField";
 import { Pot } from "@/types";
 
+/**
+ * Props pour le composant PotTransactionModal.
+ * @property {boolean} isOpen - Indique si la fenêtre modale est ouverte.
+ * @property {function} onClose - Fonction de rappel pour fermer la fenêtre modale.
+ * @property {Pot} pot - L'objet représentant le pot concerné.
+ * @property {function} onSubmit - Fonction de rappel pour soumettre la transaction (ajouter ou retirer de l'argent).
+ * @property {"add" | "withdraw"} actionType - Indique si l'utilisateur ajoute ("add") ou retire ("withdraw") des fonds du pot.
+ */
 interface PotTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   pot: Pot;
-  onSubmit: (amount: number) => void; // callback pour ajouter ou retirer de l'argent
-  actionType: "add" | "withdraw"; // pour déterminer si on ajoute ou retire de l'argent
+  onSubmit: (amount: number) => void;
+  actionType: "add" | "withdraw";
 }
 
+/**
+ * Composant PotTransactionModal pour ajouter ou retirer des fonds d'un pot d'épargne.
+ *
+ * Ce composant affiche une fenêtre modale où l'utilisateur peut saisir un montant à ajouter ou à retirer d'un pot d'épargne.
+ * Il inclut une validation des montants et met à jour l'état du pot, en affichant les changements dans une barre de progression.
+ *
+ * @param {PotTransactionModalProps} props - Les props nécessaires pour configurer le PotTransactionModal.
+ * @returns JSX.Element | null - Le JSX à afficher ou `null` si la fenêtre modale n'est pas ouverte.
+ */
 const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
   isOpen,
   onClose,
@@ -22,7 +39,7 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
   const [amount, setAmount] = useState<number | "">("");
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen) return null; // Ne rien afficher si la popup n'est pas ouverte
 
   const amountNumber = amount ? Number(amount) : 0;
 
@@ -30,7 +47,7 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
   const newTotal =
     actionType === "add" ? pot.total + amountNumber : pot.total - amountNumber;
 
-  // Gestion des erreurs et validation des montants
+  // Validation du montant saisi
   const validateAmount = () => {
     if (amountNumber <= 0) {
       setError("The amount must be greater than zero.");
@@ -48,12 +65,11 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
     return true;
   };
 
-  // Calcul de la largeur de la barre de progression pour l'ancien montant
+  // Calcul de la largeur de la barre de progression actuelle et après l'opération
   const currentPercentage = (pot.total / pot.target) * 100;
-
-  // Calcul de la largeur de la barre de progression pour le nouveau montant
   const newPercentage = Math.min((newTotal / pot.target) * 100, 100);
 
+  // Gestion de la soumission du formulaire
   const handleSubmit = () => {
     if (validateAmount()) {
       onSubmit(amountNumber);
@@ -76,16 +92,15 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
           />
         </div>
 
-        {/* Info bar */}
+        {/* Barre d'information */}
         <p className="text-preset-4 text-grey-500">
           {actionType === "add"
             ? "Add funds to this savings pot to reach your goals faster. Every contribution brings you closer to your target."
             : "Withdraw funds from this savings pot. Be sure to keep enough to meet your future goals."}
         </p>
 
-        {/* Progression bar */}
+        {/* Barre de progression */}
         <div className="flex flex-col gap-y-4">
-          {/* New Amount Display */}
           <div className="flex justify-between items-center">
             <p className="text-preset-4 text-grey-500">New Amount</p>
             <p className="text-preset-1 text-grey-900 font-bold">
@@ -96,9 +111,8 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
             </p>
           </div>
 
-          {/* Progress Bar */}
+          {/* Barre de progression visuelle */}
           <div className="w-full h-2 bg-beige-100 rounded flex">
-            {/* Partie noire représentant l'ancien montant */}
             <div
               className="self-stretch rounded-l mr-[2px]"
               style={{
@@ -106,7 +120,6 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
                 backgroundColor: "#201F24",
               }}
             />
-            {/* Partie rouge/verte représentant la modification */}
             {actionType === "add" ? (
               <div
                 className="self-stretch rounded-r bg-green"
@@ -126,7 +139,6 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
             )}
           </div>
 
-          {/* Progress Percentage */}
           <div className="flex justify-between items-center">
             <p
               className={`text-preset-5 font-bold ${
@@ -141,7 +153,7 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
           </div>
         </div>
 
-        {/* Input Field */}
+        {/* Champ de saisie pour le montant */}
         <InputField
           label={actionType === "add" ? "Amount to Add" : "Amount to Withdraw"}
           name="amount"
@@ -152,10 +164,10 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
           onChange={(e) => setAmount(Number(e.target.value))}
         />
 
-        {/* Affichage de l'erreur si applicable */}
+        {/* Affichage des erreurs */}
         {error && <p className="text-preset-4 text-red">{error}</p>}
 
-        {/* Action Button */}
+        {/* Bouton d'action */}
         <Button onClick={handleSubmit} className="w-full" variant="primary">
           {actionType === "add" ? "Confirm Addition" : "Confirm Withdrawal"}
         </Button>

@@ -8,6 +8,11 @@ import {
 import { Transaction, FetchOptions } from "@/types";
 import financialData from "@/data/financialData.json";
 
+/**
+ * Interface pour les valeurs fournies par le contexte des transactions.
+ * @property {Transaction[]} transactions - Liste des transactions filtrées et paginées.
+ * @property {function} fetchTransactions - Fonction pour récupérer et filtrer les transactions selon les options de recherche et de tri.
+ */
 interface TransactionContextProps {
   transactions: Transaction[];
   fetchTransactions: (
@@ -15,11 +20,27 @@ interface TransactionContextProps {
   ) => Promise<{ transactions: Transaction[]; total: number }>;
 }
 
+// Création du contexte des transactions avec une valeur par défaut null
 const TransactionContext = createContext<TransactionContextProps | null>(null);
 
+/**
+ * Composant TransactionProvider pour fournir le contexte des transactions à l'application.
+ *
+ * Ce composant gère l'état des transactions et permet de les filtrer, trier et paginer selon les options fournies.
+ * Il expose ces données et fonctions à tous les composants enfants via le contexte `TransactionContext`.
+ *
+ * @param {ReactNode} children - Les composants enfants qui peuvent accéder au contexte des transactions.
+ * @returns {JSX.Element} - Le provider de contexte des transactions avec ses valeurs et méthodes.
+ */
 export function TransactionProvider({ children }: { children: ReactNode }) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // État pour stocker les transactions
 
+  /**
+   * Fonction pour récupérer et filtrer les transactions selon les options de recherche, tri et pagination.
+   *
+   * @param {FetchOptions} options - Les options pour filtrer, trier et paginer les transactions.
+   * @returns {Promise<{transactions: Transaction[], total: number}>} - Retourne les transactions filtrées et paginées ainsi que le nombre total de résultats.
+   */
   const fetchTransactions = useCallback(
     async ({ page, searchQuery, sortBy, categoryFilter }: FetchOptions) => {
       // Simuler l'appel à l'API avec des données locales
@@ -56,7 +77,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
           case "Lowest":
             return a.amount - b.amount;
           default:
-            return 0; // Par défaut, pas de tri
+            return 0; // Pas de tri par défaut
         }
       });
 
@@ -78,7 +99,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
         total: filteredTransactions.length,
       };
     },
-    [] // Tableau de dépendances vide pour que la fonction soit stable et ne change pas entre les rendus
+    [] // Tableau de dépendances vide pour que la fonction soit stable
   );
 
   return (
@@ -88,6 +109,15 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Hook personnalisé pour accéder au contexte des transactions.
+ *
+ * Ce hook permet à n'importe quel composant d'accéder aux données et aux fonctions du contexte des transactions.
+ * Si ce hook est utilisé en dehors d'un `TransactionProvider`, une erreur est levée.
+ *
+ * @throws {Error} - Si utilisé en dehors d'un `TransactionProvider`.
+ * @returns {TransactionContextProps} - Le contexte des transactions actuel.
+ */
 export function useTransactionContext() {
   const context = useContext(TransactionContext);
   if (!context) {
