@@ -18,17 +18,17 @@ const RecurringBillsPage = () => {
       <HeaderPage title="Recurring Bills" />
 
       {/* content */}
-      <div className="flex justify-between gap-x-6">
+      <div className="w-full flex flex-col md:flex-row gap-6 pb-0 sm:pb-20 md:pb-0 lg:pb-0">
         {/* total bills & summary */}
-        <div className="w-[337px] h-[418px] flex flex-col gap-y-6">
+        <div className="w-full md:h-[204px] lg:h-[418px] flex flex-col sm:flex-row md:flex-col gap-6 md:gap-x-6">
           <TotalBills />
           <BillsSummary />
         </div>
 
         {/* bills list */}
-        <div className="w-[669px] bg-white flex flex-col gap-y-6 p-8 rounded-xl">
+        <div className="w-full lg:w-[669px] bg-white flex flex-col gap-y-6 p-8 rounded-xl">
           {/* search & sort by */}
-          <div className="flex justify-between items-center ">
+          <div className="flex justify-between items-center gap-6">
             <SearchBar
               setSearchQuery={setSearchQuery}
               placeholderText="Search bills"

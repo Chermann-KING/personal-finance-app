@@ -12,7 +12,7 @@ const TotalBills = () => {
     0
   );
   return (
-    <div className="bg-grey-900 w-full flex flex-col justify-start gap-y-8 p-6 rounded-xl">
+    <div className="bg-grey-900 w-full flex flex-row sm:flex-col items-center sm:justify-start sm:items-start gap-x-6 sm:gap-y-8 p-6 rounded-xl">
       <RecurringBillsIcon />
       {/* total amount */}
       <div>

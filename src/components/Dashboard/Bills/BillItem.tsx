@@ -30,9 +30,9 @@ const BillItem: React.FC<BillItemProps> = ({ bill }) => {
   // const isUpcoming = recurring === true && formattedDate > today; // Si c'est dans le futur
 
   return (
-    <li className="flex justify-between items-center py-5">
+    <li className="min-w-[303px] sm:w-full grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 py-5">
       {/* Avatar et nom */}
-      <div className="w-[319px] flex items-center gap-x-3">
+      <div className="w-[319px] flex items-center gap-x-3 col-span-6">
         <Image
           src={avatar}
           alt={name}
@@ -43,32 +43,34 @@ const BillItem: React.FC<BillItemProps> = ({ bill }) => {
         <h3 className="text-preset-4 text-grey-900 font-bold">{name}</h3>
       </div>
 
-      {/* Date et icône */}
-      <div className="w-[120px] text-left flex justify-start items-center gap-x-2">
-        {/* Date */}
-        <p className={`text-${isPaid ? "green" : "grey-500"} text-preset-5`}>
-          {dueDateText}
-        </p>
+      <div className="col-span-6 flex justify-between">
+        {/* Date et icône */}
+        <div className="w-[120px] text-left flex justify-start items-center gap-x-2 col-span-3">
+          {/* Date */}
+          <p className={`text-${isPaid ? "green" : "grey-500"} text-preset-5`}>
+            {dueDateText}
+          </p>
 
-        {/* Icône */}
-        <div>
-          {isPaid ? (
-            <BillPaidIcon className="text-green" />
-          ) : dueSoon ? (
-            <BillDueIcon className="text-red" />
-          ) : null}
+          {/* Icône */}
+          <div>
+            {isPaid ? (
+              <BillPaidIcon className="text-green" />
+            ) : dueSoon ? (
+              <BillDueIcon className="text-red" />
+            ) : null}
+          </div>
         </div>
-      </div>
 
-      {/* Montant */}
-      <div className="w-[100px] text-right flex items-center">
-        <span
-          className={`w-full text-${
-            dueSoon ? "red" : isPaid ? "green" : "grey-900"
-          } font-bold text-preset-4`}
-        >
-          ${Math.abs(amount).toFixed(2)}
-        </span>
+        {/* Montant */}
+        <div className="w-[100px] text-right flex items-center col-span-3">
+          <span
+            className={`w-full text-${
+              dueSoon ? "red" : isPaid ? "green" : "grey-900"
+            } font-bold text-preset-4`}
+          >
+            ${Math.abs(amount).toFixed(2)}
+          </span>
+        </div>
       </div>
     </li>
   );
