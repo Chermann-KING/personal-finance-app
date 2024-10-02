@@ -41,7 +41,7 @@ const Budgets: React.FC = () => {
             <li key={index} className="flex items-center py-3">
               {/* Budget Theme */}
               <div
-                className={`h-[21px] w-[4px] rounded-full`}
+                className={`h-[21px] w-1 rounded-full`}
                 style={{ backgroundColor: budget.theme }}
               ></div>
 

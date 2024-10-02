@@ -161,7 +161,7 @@ const BudgetCard: FC<BudgetCardProps> = ({
         <div className="w-full flex items-center gap-4">
           <div className="grow shrink basis-0 h-[43px] justify-start items-center gap-4 flex">
             <div
-              className="w-1 self-stretch"
+              className="w-1 self-stretch rounded-full"
               style={{ backgroundColor: theme }}
             />
             <div className="flex-col justify-center items-start gap-1 inline-flex">
