@@ -103,13 +103,14 @@ const BudgetPopup: React.FC<PopupProps> = ({
         <div className="flex flex-col gap-y-4">
           {/* Sélection de la catégorie */}
           <div className="self-stretch flex flex-col gap-y-1">
-            <span className="text-preset-5 text-grey-500 font-bold">
+            <label className="text-preset-5 text-grey-500 font-bold">
               Budget Category
-            </span>
+            </label>
             <CategoriesDropdown
               initialSelectedOption={category}
               onOptionChange={setCategory}
-              label={true}
+              label={false}
+              inPopup={true}
             />
           </div>
 

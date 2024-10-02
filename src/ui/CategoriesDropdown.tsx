@@ -24,11 +24,15 @@ export type CategoryDropdownOptions =
  * @property {boolean} label - Indique si un label "Category" doit être affiché (visible uniquement sur les grands écrans).
  * @property {CategoryDropdownOptions} [initialSelectedOption] - L'option de catégorie initialement sélectionnée. Par défaut: "All Transactions".
  * @property {function} [onOptionChange] - Fonction de rappel pour notifier le changement de l'option sélectionnée.
+ * @property {boolean} [inPopup] - Optionnel. Indique si le dropdown est utilisé dans une popup.
+ * Lorsque cette option est activée, l'affichage est modifié pour occuper toute la largeur,
+ * et l'icône de dropdown est masquée.
  */
 interface CategoryDropdownProps {
   label: boolean;
   initialSelectedOption?: CategoryDropdownOptions;
   onOptionChange?: (option: CategoryDropdownOptions) => void;
+  inPopup?: boolean;
 }
 
 /**
@@ -44,6 +48,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   label,
   initialSelectedOption = "All Transactions",
   onOptionChange,
+  inPopup = false, // Valeur par défaut false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<CategoryDropdownOptions>(
@@ -95,28 +100,36 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
 
   return (
     <div
-      className="max-w-[245px] relative flex justify-end items-center gap-x-2"
+      className={`${
+        inPopup ? "w-full" : "max-w-[245px]"
+      } relative flex justify-end items-center gap-x-2`}
       ref={dropdownRef}
     >
       {/* Label visible uniquement sur les écrans sm (>= 640px) */}
-      {label && (
+      {label && !inPopup && (
         <label className="hidden sm:block text-grey-500 text-preset-4">
           Category
         </label>
       )}
       {/* Bouton pour le filtre visible sur mobile uniquement */}
-      <button
-        type="button"
-        onClick={toggleDropdown}
-        className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none text-sm"
-      >
-        <FilterMobileIcon />
-      </button>
+      {!inPopup && (
+        <button
+          type="button"
+          onClick={toggleDropdown}
+          className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none text-sm"
+        >
+          <FilterMobileIcon />
+        </button>
+      )}
       {/* Bouton d'ouverture du dropdown visible uniquement sur les écrans sm (>= 640px) */}
       <button
         type="button"
         onClick={toggleDropdown}
-        className="hidden sm:inline-flex justify-between items-center w-[177px] bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
+        className={`${
+          inPopup
+            ? "w-full flex justify-between items-center"
+            : "hidden sm:inline-flex justify-between items-center w-[177px]"
+        } bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg`}
       >
         <span>{selectedOption}</span>
         <CaretDownIcon className={`transform ${isOpen ? "rotate-180" : ""}`} />
@@ -124,10 +137,11 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
       {/* Dropdown menu visible après clic sur l'icône de filtre (mobile) ou bouton (desktop) */}
       <div
         role="listbox"
+        // TODO: Penser à revoir l'animation qui est perdue lorsqu'on ajoute display:block;
         className={`w-[177px] h-auto max-h-[333px] overflow-y-scroll scrollbar-thin no-scrollbar absolute sm:right-0 sm:mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transform transition-all duration-300 ease-in-out ${
           isOpen
-            ? "opacity-100 translate-y-0 visible"
-            : "opacity-0 -translate-y-2 invisible"
+            ? "block opacity-100 translate-y-0 visible"
+            : "hidden opacity-0 -translate-y-2 invisible"
         }right-0 top-11 sm:top-[50px]`}
       >
         {/* Options de catégories */}
