@@ -63,7 +63,7 @@ function PotsPage() {
   };
 
   return (
-    <div className="self-stretch flex flex-col gap-y-8">
+    <div className="w-full flex flex-col gap-y-8">
       {/* header */}
       <HeaderPage
         title="Pots"
@@ -72,36 +72,33 @@ function PotsPage() {
         onButtonClick={handleAddNewPot}
       />
 
-      <div className="flex gap-6">
-        {/* popup */}
-        {isModalOpen && (
-          <PotPopup
-            isOpen={isModalOpen}
-            onClose={() => setModalOpen(false)}
-            potToEdit={potToEdit}
-            onSubmit={handleSubmit}
-          />
-        )}
-
-        {/* Pot Transaction Modal */}
-        {potToTransact && (
-          <PotTransactionModal
-            isOpen={!!potToTransact}
-            onClose={() => setPotToTransact(null)}
-            pot={potToTransact}
-            actionType={transactionType!}
-            onSubmit={handleTransaction}
-          />
-        )}
-
-        {/* Pots */}
-        <PotList
-          onEditPot={handleEditPot}
-          onDeletePot={handleDeletePot}
-          onAddMoney={(pot) => openTransactionModal(pot, "add")}
-          onWithdraw={(pot) => openTransactionModal(pot, "withdraw")}
+      {/* edit popup */}
+      {isModalOpen && (
+        <PotPopup
+          isOpen={isModalOpen}
+          onClose={() => setModalOpen(false)}
+          potToEdit={potToEdit}
+          onSubmit={handleSubmit}
         />
-      </div>
+      )}
+      {/* transaction popup */}
+      {potToTransact && (
+        <PotTransactionModal
+          isOpen={!!potToTransact}
+          onClose={() => setPotToTransact(null)}
+          pot={potToTransact}
+          actionType={transactionType!}
+          onSubmit={handleTransaction}
+        />
+      )}
+
+      {/* Pots */}
+      <PotList
+        onEditPot={handleEditPot}
+        onDeletePot={handleDeletePot}
+        onAddMoney={(pot) => openTransactionModal(pot, "add")}
+        onWithdraw={(pot) => openTransactionModal(pot, "withdraw")}
+      />
     </div>
   );
 }

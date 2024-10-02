@@ -69,11 +69,11 @@ const PotList: React.FC<PotListProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
       {pots.map((pot, index) => (
         <div
           key={index}
-          className="bg-white w-[518px] h-[303px] flex flex-col justify-between gap-y-8 rounded-xl p-6"
+          className="bg-white col-span-1 max-[468px]:w-[343px] w-[517px] h-[303px] flex flex-col justify-between gap-y-8 rounded-xl p-6"
         >
           {/* Popup de confirmation de suppression */}
           <DeleteConfirmation
