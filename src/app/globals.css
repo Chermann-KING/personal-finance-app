@@ -2,20 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   background-color: #F8F4F0;
 }
-
-/* Masquer la barre de défilement pour tous les navigateurs modernes */
-/* .no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-} */
 
 /* scrollbar */
 /* Personnalisation de la scrollbar */

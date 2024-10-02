@@ -71,7 +71,7 @@ const PotPopup: React.FC<PotPopupProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50">
-      <div className="bg-white flex flex-col gap-y-5 rounded-lg p-8 w-[560px]">
+      <div className="bg-white flex flex-col gap-y-5 rounded-lg p-8 w-[560px] mx-4">
         {/* En-tête de la popup */}
         <div className="flex justify-between items-center">
           <h2 className="text-preset-1 text-grey-900 font-bold">
