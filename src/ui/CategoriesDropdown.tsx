@@ -180,7 +180,10 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
           onClick={toggleDropdown}
           className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none text-sm"
         >
-          <FilterMobileIcon aria-label="Filter by category" />
+          <FilterMobileIcon
+            aria-label="Filter by category"
+            aria-hidden="true"
+          />
         </button>
       )}
       {/* Bouton d'ouverture du dropdown visible uniquement sur les écrans sm (>= 640px) */}
@@ -200,6 +203,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
         <CaretDownIcon
           className={`transform ${isOpen ? "rotate-180" : ""}`}
           aria-label="Toggle dropdown"
+          aria-hidden="true"
         />
       </button>
       {/* Dropdown menu visible après clic sur l'icône de filtre (mobile) ou bouton (desktop) */}
