@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import CaretDownIcon from "@/assets/images/icon-caret-down.svg";
 import FilterMobileIcon from "@/assets/images/icon-filter-mobile.svg";
+import { useBudget } from "@/context/BudgetContext";
 
 /**
  * Les options disponibles pour le menu déroulant de catégories.
@@ -27,12 +28,14 @@ export type CategoryDropdownOptions =
  * @property {boolean} [inPopup] - Optionnel. Indique si le dropdown est utilisé dans une popup.
  * Lorsque cette option est activée, l'affichage est modifié pour occuper toute la largeur,
  * et l'icône de dropdown est masquée.
+ * @property {boolean} inBudgetContext - Indique si le dropdown est utilisé dans le contexte des budgets.
  */
 interface CategoryDropdownProps {
   label: boolean;
   initialSelectedOption?: CategoryDropdownOptions;
   onOptionChange?: (option: CategoryDropdownOptions) => void;
   inPopup?: boolean;
+  inBudgetContext: boolean;
 }
 
 /**
@@ -49,7 +52,11 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   initialSelectedOption = "All Transactions",
   onOptionChange,
   inPopup = false, // Valeur par défaut false
+  inBudgetContext = true,
 }) => {
+  const budgetContext = useBudget();
+  const budgets = inBudgetContext ? budgetContext.budgets : [];
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<CategoryDropdownOptions>(
     initialSelectedOption
@@ -80,6 +87,15 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   ];
 
   /**
+   * Désactiver la catégorie "All Transactions" et les catégories déjà utilisées si dans une popup.
+   */
+  const disabledCategories = new Set(
+    inPopup
+      ? ["All Transactions", ...budgets.map((budget) => budget.category)]
+      : []
+  );
+
+  /**
    * Ouvre ou ferme le menu déroulant.
    */
   const toggleDropdown = () => {
@@ -99,12 +115,14 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
     e: React.MouseEvent | React.KeyboardEvent
   ) => {
     e.preventDefault();
-    setSelectedOption(option);
-    if (onOptionChange) {
-      onOptionChange(option);
+    if (!disabledCategories.has(option)) {
+      setSelectedOption(option);
+      if (onOptionChange) {
+        onOptionChange(option);
+      }
+      setIsOpen(false);
+      buttonRef.current?.focus();
     }
-    setIsOpen(false);
-    buttonRef.current?.focus();
   };
 
   /**
@@ -246,12 +264,17 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
           {categories.map((option, index) => (
             <div
               key={option}
-              className={`cursor-pointer py-[14px] text-[0.9375rem] text-gray-700 transition-colors duration-200 ${
-                selectedOption === option ? " font-bold" : "hover:font-bold"
-              }  ${focusedOptionIndex === index ? "font-bold" : ""}`}
+              className={`py-[14px] text-[0.9375rem] text-gray-700 transition-colors duration-200 ${
+                selectedOption === option ? "font-bold" : "hover:font-bold"
+              }  ${focusedOptionIndex === index ? "font-bold" : ""} ${
+                disabledCategories.has(option)
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
               onClick={(e) => handleOptionChange(option, e)}
               role="option"
               aria-selected={selectedOption === option}
+              aria-disabled={disabledCategories.has(option)}
               tabIndex={-1}
             >
               {option}

@@ -11,6 +11,7 @@ import {
   TransactionProvider,
 } from "@/context/TransactionContext";
 import HeaderPage from "@/components/Dashboard/HeaderPage";
+import { BudgetProvider } from "@/context/BudgetContext";
 
 function TransactionsPage() {
   const { transactions, fetchTransactions } = useTransactionContext();
@@ -81,6 +82,7 @@ function TransactionsPage() {
             <CategoriesDropdown
               label={true}
               onOptionChange={(option) => setCategoryFilter(option)}
+              inBudgetContext={false}
             />
           </div>
         </div>
@@ -100,7 +102,9 @@ function TransactionsPage() {
 export default function Page() {
   return (
     <TransactionProvider>
-      <TransactionsPage />
+      <BudgetProvider>
+        <TransactionsPage />
+      </BudgetProvider>
     </TransactionProvider>
   );
 }
