@@ -111,6 +111,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
               onOptionChange={setCategory}
               label={false}
               inPopup={true}
+              inBudgetContext={true}
             />
           </div>
 
