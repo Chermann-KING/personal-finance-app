@@ -164,7 +164,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
         aria-haspopup="listbox"
         className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none"
       >
-        <SortMobileIcon aria-label="Sort by option" />
+        <SortMobileIcon aria-label="Sort by option" aria-hidden="true" />
       </button>
       {/* Bouton d'ouverture du dropdown visible uniquement sur les écrans sm (>= 640px) */}
       <button
@@ -181,6 +181,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
         <CaretDownIcon
           className={`transform ${isOpen ? "rotate-180" : ""}`}
           aria-label="Toggle dropdown"
+          aria-hidden="true"
         />
       </button>
       {/* Dropdown menu visible après clic sur l'icône de tri (mobile) ou bouton (desktop) */}
