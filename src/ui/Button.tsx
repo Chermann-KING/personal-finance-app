@@ -60,13 +60,16 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      aria-disabled={disabled ? "true" : undefined}
       className={`${baseStyles} ${variantStyles[variant]} ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${className}`}
     >
       {children}
       {/* Affiche l'icône CaretRight uniquement pour la variante 'tertiary' */}
-      {variant === "tertiary" && <CaretRightIcon className="ml-3" />}
+      {variant === "tertiary" && (
+        <CaretRightIcon className="ml-3" aria-hidden="true" />
+      )}
     </button>
   );
 };
