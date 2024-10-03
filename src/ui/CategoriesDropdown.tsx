@@ -60,6 +60,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const optionsContainerRef = useRef<HTMLDivElement>(null);
 
   /**
    * Liste des options de le dropdown.
@@ -107,8 +108,26 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   };
 
   /**
-   * Gestion de la navigation au clavier pour le dropdown
+   * Fonction pour faire défiler l'option dans la zone visible.
    */
+  const scrollToOption = (index: number) => {
+    const container = optionsContainerRef.current;
+    const optionElement = container?.children[index] as HTMLElement;
+
+    if (optionElement && container) {
+      const optionTop = optionElement.offsetTop;
+      const optionBottom = optionTop + optionElement.offsetHeight;
+      const containerTop = container.scrollTop;
+      const containerBottom = containerTop + container.offsetHeight;
+
+      if (optionBottom > containerBottom) {
+        container.scrollTop = optionBottom - container.offsetHeight;
+      } else if (optionTop < containerTop) {
+        container.scrollTop = optionTop;
+      }
+    }
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isOpen) {
       return; // Ne gère pas les événements du clavier si le dropdown est fermé
@@ -116,16 +135,22 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setFocusedOptionIndex((prev) =>
-        prev === null || prev === categories.length - 1 ? 0 : prev + 1
-      );
+      setFocusedOptionIndex((prev) => {
+        const nextIndex =
+          prev === null || prev === categories.length - 1 ? 0 : prev + 1;
+        scrollToOption(nextIndex);
+        return nextIndex;
+      });
     }
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setFocusedOptionIndex((prev) =>
-        prev === null || prev === 0 ? categories.length - 1 : prev - 1
-      );
+      setFocusedOptionIndex((prev) => {
+        const prevIndex =
+          prev === null || prev === 0 ? categories.length - 1 : prev - 1;
+        scrollToOption(prevIndex);
+        return prevIndex;
+      });
     }
 
     if (event.key === "Enter" || event.key === " ") {
@@ -136,7 +161,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
 
     if (event.key === "Escape") {
       setIsOpen(false);
-      buttonRef.current?.focus(); // Retour au bouton lorsque la touche échap est pressée
+      buttonRef.current?.focus();
     }
   };
 
@@ -202,7 +227,6 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
         <span>{selectedOption}</span>
         <CaretDownIcon
           className={`transform ${isOpen ? "rotate-180" : ""}`}
-          aria-label="Toggle dropdown"
           aria-hidden="true"
         />
       </button>
@@ -211,7 +235,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
         <div
           id="category-dropdown-options"
           role="listbox"
-          // TODO: Penser à revoir l'animation qui est perdue lorsqu'on ajoute display:block;
+          ref={optionsContainerRef}
           className={`w-[177px] h-auto max-h-[333px] overflow-y-scroll scrollbar-thin no-scrollbar absolute sm:right-0 sm:mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transform transition-all duration-300 ease-in-out ${
             isOpen
               ? "block opacity-100 translate-y-0 visible"
