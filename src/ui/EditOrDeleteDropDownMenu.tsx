@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import EllipsisIcon from "@/assets/images/icon-ellipsis.svg";
 
+/**
+ * Props pour le composant DropdownMenu.
+ * @property {function} onEdit - Fonction déclenchée lors de la sélection de l'option d'édition.
+ * @property {function} onDelete - Fonction déclenchée lors de la sélection de l'option de suppression.
+ * @property {string} editLabel - Libellé à afficher pour l'option d'édition.
+ * @property {string} deleteLabel - Libellé à afficher pour l'option de suppression.
+ */
 interface DropdownMenuProps {
   onEdit: () => void;
   onDelete: () => void;
@@ -8,30 +15,41 @@ interface DropdownMenuProps {
   deleteLabel: string;
 }
 
+/**
+ * Composant DropdownMenu pour afficher un menu contextuel avec des options d'édition et de suppression.
+ * Ce menu se contrôle à la fois à la souris et au clavier pour garantir l'accessibilité.
+ *
+ * @param {DropdownMenuProps} props - Les propriétés nécessaires pour configurer le DropdownMenu.
+ * @returns JSX.Element
+ */
 const DropdownMenu: React.FC<DropdownMenuProps> = ({
   onEdit,
   onDelete,
   editLabel,
   deleteLabel,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuItemsRef = useRef<Array<HTMLLIElement | null>>([]);
+  const [isOpen, setIsOpen] = useState(false); // État indiquant si le menu est ouvert
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null); // Indice de l'option actuellement focalisée
+  const dropdownRef = useRef<HTMLDivElement>(null); // Référence pour la gestion des clics à l'extérieur du menu
+  const buttonRef = useRef<HTMLButtonElement>(null); // Référence pour le bouton du menu
+  const menuItemsRef = useRef<Array<HTMLLIElement | null>>([]); // Référence pour les éléments du menu
 
+  /**
+   * Ouvre ou ferme le menu déroulant et réinitialise l'index de focus.
+   */
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
-    setFocusedIndex(null); // Reset focus index
+    setFocusedIndex(null); // Réinitialise l'index du focus
   };
 
+  // Gestion du clic en dehors du menu pour le fermer
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        setIsOpen(false); // Ferme le menu si on clique à l'extérieur
       }
     };
 
@@ -41,49 +59,53 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     };
   }, []);
 
-  // Gestion de la navigation au clavier
+  /**
+   * Gère la navigation au clavier dans le menu.
+   *
+   * @param {React.KeyboardEvent} event - L'événement clavier à gérer.
+   */
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isOpen) return;
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setFocusedIndex((prev) => (prev === null || prev === 1 ? 0 : prev + 1));
+      setFocusedIndex((prev) => (prev === null || prev === 1 ? 0 : prev + 1)); // Passe à l'élément suivant
     }
 
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setFocusedIndex((prev) => (prev === null || prev === 0 ? 1 : prev - 1));
+      setFocusedIndex((prev) => (prev === null || prev === 0 ? 1 : prev - 1)); // Passe à l'élément précédent
     }
 
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (focusedIndex === 0) {
-        onEdit();
+        onEdit(); // Exécuter la fonction d'édition si l'élément est sélectionné
       } else if (focusedIndex === 1) {
-        onDelete();
+        onDelete(); // Exécute la fonction de suppression si l'élément est sélectionné
       }
-      setIsOpen(false);
+      setIsOpen(false); // Ferme le menu après sélection
     }
 
     if (event.key === "Escape") {
-      setIsOpen(false);
-      buttonRef.current?.focus();
+      setIsOpen(false); // Ferme le menu si la touche Échap est pressée
+      buttonRef.current?.focus(); // Reviens au bouton
     }
   };
 
-  // Gérer le focus sur les éléments du menu lors de leur apparition
+  // Gère le focus sur les éléments du menu lors de leur apparition
   useEffect(() => {
     if (focusedIndex !== null && menuItemsRef.current[focusedIndex]) {
-      menuItemsRef.current[focusedIndex]?.focus();
+      menuItemsRef.current[focusedIndex]?.focus(); // Focus sur l'élément focalisé
     }
   }, [focusedIndex]);
 
-  // Ouvrir le menu et donner le focus à la première option
+  // Ouvre le menu et donne le focus à la première option
   const handleButtonKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      setIsOpen(true);
-      setFocusedIndex(0);
+      setIsOpen(true); // Ouvre le menu au clavier
+      setFocusedIndex(0); // Focalise la première option
     }
   };
 
