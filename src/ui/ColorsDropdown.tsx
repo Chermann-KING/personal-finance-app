@@ -245,6 +245,7 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
             : undefined
         }
         tabIndex={-1}
+        ref={optionsContainerRef}
         className={`h-[300px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 w-full mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transition-all duration-300 ease-in-out ${
           isOpen
             ? "opacity-100 translate-y-0 visible"
