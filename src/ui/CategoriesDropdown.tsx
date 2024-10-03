@@ -62,7 +62,7 @@ const CategoriesDropdown: React.FC<CategoryDropdownProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   /**
-   * Liste des options de la dropdown.
+   * Liste des options de le dropdown.
    */
   const categories: CategoryDropdownOptions[] = [
     "All Transactions",

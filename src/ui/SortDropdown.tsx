@@ -43,13 +43,34 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] =
     useState<SortDropdownOptions>("Latest");
+  const [focusedOptionIndex, setFocusedOptionIndex] = useState<number | null>(
+    null
+  );
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  /**
+   * Liste des options de le dropdown.
+   */
+  const options: SortDropdownOptions[] = [
+    "Latest",
+    "Oldest",
+    "A to Z",
+    "Z to A",
+    "Highest",
+    "Lowest",
+  ];
 
   /**
    * Ouvre ou ferme le menu déroulant.
    */
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleDropdown = () => {
+    setIsOpen((prev) => !prev);
+    if (!isOpen) {
+      setFocusedOptionIndex(null);
+    }
+  };
 
   /**
    * Change l'option de tri sélectionnée.
@@ -58,13 +79,49 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
    */
   const handleOptionChange = (
     option: SortDropdownOptions,
-    e: React.MouseEvent
+    e: React.MouseEvent | React.KeyboardEvent
   ) => {
     e.stopPropagation();
     setSelectedOption(option);
     setSortBy(option);
     setIsOpen(false);
     setCurrentPage(1); // Réinitialise la pagination à la première page lors du changement de tri
+    buttonRef.current?.focus(); // Remet le focus sur le bouton après sélection
+  };
+
+  /**
+   * Gestion de la navigation au clavier pour le dropdown
+   */
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (!isOpen) {
+      return; // Ne gère pas les événements du clavier si le dropdown est fermé
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setFocusedOptionIndex((prev) =>
+        prev === null || prev === options.length - 1 ? 0 : prev + 1
+      );
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setFocusedOptionIndex((prev) =>
+        prev === null || prev === 0 ? options.length - 1 : prev - 1
+      );
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (focusedOptionIndex !== null) {
+        handleOptionChange(options[focusedOptionIndex], event);
+      }
+    }
+
+    if (event.key === "Escape") {
+      setIsOpen(false);
+      buttonRef.current?.focus(); // Retour au bouton lorsque la touche échap est pressée
+    }
   };
 
   /**
@@ -99,54 +156,61 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
       )}
       {/* Bouton pour le tri visible sur mobile uniquement */}
       <button
+        ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
+        aria-expanded={isOpen}
+        aria-controls="sort-options"
+        aria-haspopup="listbox"
         className="sm:hidden flex items-center justify-center p-2 focus:border-gray-900 focus:outline-none"
       >
-        <SortMobileIcon />
+        <SortMobileIcon aria-label="Sort by option" />
       </button>
       {/* Bouton d'ouverture du dropdown visible uniquement sur les écrans sm (>= 640px) */}
       <button
+        ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
+        onKeyDown={handleKeyDown}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-controls="sort-options"
         className="hidden sm:inline-flex justify-between items-center w-[113px] bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
       >
         <span>{selectedOption}</span>
-        <CaretDownIcon className={`transform ${isOpen ? "rotate-180" : ""}`} />
+        <CaretDownIcon
+          className={`transform ${isOpen ? "rotate-180" : ""}`}
+          aria-label="Toggle dropdown"
+        />
       </button>
       {/* Dropdown menu visible après clic sur l'icône de tri (mobile) ou bouton (desktop) */}
-      <div
-        role="listbox"
-        className={`w-[114px] h-auto max-h-[333px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transform transition-all duration-300 ease-in-out ${
-          isOpen
-            ? "opacity-100 translate-y-0 visible"
-            : "opacity-0 -translate-y-2 invisible"
-        } right-0 top-9 sm:top-[50px]`}
-      >
-        {/* Options de tri */}
-        {[
-          { label: "Latest", value: "Latest" },
-          { label: "Oldest", value: "Oldest" },
-          { label: "A to Z", value: "A to Z" },
-          { label: "Z to A", value: "Z to A" },
-          { label: "Highest", value: "Highest" },
-          { label: "Lowest", value: "Lowest" },
-        ].map((option) => (
-          <div
-            key={option.value}
-            className={`cursor-pointer py-[14px] text-[0.9375rem] text-gray-700 transition-colors duration-200 ${
-              selectedOption === option.label ? "font-bold" : "hover:font-bold"
-            }`}
-            onClick={(e) =>
-              handleOptionChange(option.value as SortDropdownOptions, e)
-            }
-            role="option"
-            aria-selected={selectedOption === option.label}
-          >
-            {option.label}
-          </div>
-        ))}
-      </div>
+      {isOpen && (
+        <div
+          id="sort-options"
+          role="listbox"
+          className={`w-[114px] h-auto max-h-[333px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transform transition-all duration-300 ease-in-out ${
+            isOpen
+              ? "opacity-100 translate-y-0 visible"
+              : "opacity-0 -translate-y-2 invisible"
+          } right-0 top-9 sm:top-[50px]`}
+        >
+          {/* Options de tri */}
+          {options.map((option, index) => (
+            <div
+              key={option}
+              className={`cursor-pointer py-[14px] text-[0.9375rem] text-gray-700 transition-colors duration-200 ${
+                selectedOption === option ? "font-bold" : "hover:font-bold"
+              } ${focusedOptionIndex === index ? "font-bold" : ""}`}
+              onClick={(e) => handleOptionChange(option, e)}
+              role="option"
+              aria-selected={selectedOption === option}
+              tabIndex={-1}
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
