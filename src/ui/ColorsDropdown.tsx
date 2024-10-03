@@ -85,8 +85,13 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   existingColors,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [focusedColorIndex, setFocusedColorIndex] = useState<number | null>(
+    null
+  );
   const [availableColors, setAvailableColors] = useState<Color[]>(colors);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const optionsContainerRef = useRef<HTMLDivElement>(null);
 
   // Vérifie les couleurs utilisées et met à jour l'état des couleurs disponibles
   useEffect(() => {
@@ -105,6 +110,78 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
   const handleSelectColor = (color: Color) => {
     onSelectColor(color.value);
     setIsOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  /**
+   * Fonction pour faire défiler l'option dans la zone visible.
+   */
+  const scrollToOption = (index: number) => {
+    const container = optionsContainerRef.current;
+    const optionElement = container?.children[index] as HTMLElement;
+
+    if (optionElement && container) {
+      const optionTop = optionElement.offsetTop;
+      const optionBottom = optionTop + optionElement.offsetHeight;
+      const containerTop = container.scrollTop;
+      const containerBottom = containerTop + container.offsetHeight;
+
+      if (optionBottom > containerBottom) {
+        container.scrollTop = optionBottom - container.offsetHeight;
+      } else if (optionTop < containerTop) {
+        container.scrollTop = optionTop;
+      }
+    }
+  };
+
+  /**
+   * Gère la navigation clavier pour les options de couleur.
+   */
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (!isOpen) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setFocusedColorIndex((prev) => {
+        let nextIndex =
+          prev === null || prev === availableColors.length - 1 ? 0 : prev + 1;
+        while (availableColors[nextIndex].used) {
+          nextIndex =
+            nextIndex === availableColors.length - 1 ? 0 : nextIndex + 1;
+        }
+        scrollToOption(nextIndex);
+        return nextIndex;
+      });
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setFocusedColorIndex((prev) => {
+        let prevIndex =
+          prev === null || prev === 0 ? availableColors.length - 1 : prev - 1;
+        while (availableColors[prevIndex].used) {
+          prevIndex =
+            prevIndex === 0 ? availableColors.length - 1 : prevIndex - 1;
+        }
+        scrollToOption(prevIndex);
+        return prevIndex;
+      });
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (
+        focusedColorIndex !== null &&
+        !availableColors[focusedColorIndex].used
+      ) {
+        handleSelectColor(availableColors[focusedColorIndex]);
+      }
+    }
+
+    if (event.key === "Escape") {
+      setIsOpen(false);
+      buttonRef.current?.focus();
+    }
   };
 
   /**
@@ -134,8 +211,12 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
     <div className="relative w-full min-w-56" ref={dropdownRef}>
       {/* Bouton pour ouvrir le dropdown */}
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleKeyDown}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
         className="inline-flex justify-between items-center w-full bg-white border border-gray-300 focus:border-gray-900 focus:outline-none text-[0.875rem] font-normal text-gray-900 px-[19px] py-[14px] rounded-lg"
       >
         {/* Point de couleur et libellé */}
@@ -148,11 +229,22 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
             {selectedColorName}
           </span>
         </span>
-        <CaretDownIcon className={`transform ${isOpen ? "rotate-180" : ""}`} />
+        <CaretDownIcon
+          className={`transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
       </button>
 
       {/* Liste déroulante des couleurs */}
       <div
+        id="color-options"
+        role="listbox"
+        aria-activedescendant={
+          focusedColorIndex !== null
+            ? availableColors[focusedColorIndex].name
+            : undefined
+        }
+        tabIndex={-1}
         className={`h-[300px] overflow-y-scroll scrollbar-thin no-scrollbar absolute right-0 w-full mt-2 rounded-lg shadow-custom bg-white z-10 divide-y divide-solid divide-grey-100 px-[19px] transition-all duration-300 ease-in-out ${
           isOpen
             ? "opacity-100 translate-y-0 visible"
@@ -160,14 +252,18 @@ const ColorsDropdown: React.FC<ColorsDropdownProps> = ({
         }`}
         style={{ transitionProperty: "opacity, transform" }}
       >
-        {availableColors.map((color) => (
+        {availableColors.map((color, index) => (
           <div
             key={color.value}
+            role="option"
+            aria-selected={selectedColor === color.value}
+            aria-disabled={color.used}
+            tabIndex={-1}
             className={`flex justify-between items-center text-[0.875rem] text-gray-900 py-3.5 ${
               color.used
                 ? "text-gray-900 cursor-not-allowed"
                 : "text-gray-900 hover:font-bold cursor-pointer"
-            }`}
+            } ${focusedColorIndex === index ? "font-bold" : ""}`}
             onClick={() => !color.used && handleSelectColor(color)}
           >
             {/* Point de couleur et étiquette */}
