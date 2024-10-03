@@ -51,6 +51,9 @@ const InputField: React.FC<InputFieldProps> = ({
     lineHeight: "150%",
   };
 
+  // Génère un ID unique pour l'input et le texte d'aide
+  const helperTextId = helperText ? `${name}-helper-text` : undefined;
+
   return (
     <div className="w-full min-w-56">
       {/* Affiche l'étiquette si elle est définie */}
@@ -66,17 +69,22 @@ const InputField: React.FC<InputFieldProps> = ({
       <div className="relative rounded-lg">
         {/* Préfixe avant le texte de l'input */}
         {prefix && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[19px]">
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-[19px]"
+            aria-hidden="true"
+          >
             <span className="text-gray-500 sm:text-sm">{prefix}</span>
           </div>
         )}
 
         {/* Champ de saisie */}
         <input
+          id={name}
           type={type}
           name={name}
           value={value}
           placeholder={placeholder}
+          aria-describedby={helperTextId}
           className={`block w-full rounded-md border-0 py-3.5 ${
             prefix ? "pl-10" : "pl-[19px]"
           } ${
@@ -88,7 +96,10 @@ const InputField: React.FC<InputFieldProps> = ({
 
         {/* Icône à droite */}
         {icon && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-[19px]">
+          <div
+            className="absolute inset-y-0 right-0 flex items-center pr-[19px]"
+            aria-hidden="true"
+          >
             <span className={`text-gray-500`}>{icon}</span>
           </div>
         )}
@@ -96,7 +107,10 @@ const InputField: React.FC<InputFieldProps> = ({
 
       {/* Texte d'aide affiché sous l'input */}
       {helperText && (
-        <p className="mt-1 text-grey-500 text-preset-5 text-right">
+        <p
+          id={helperTextId}
+          className="mt-1 text-grey-500 text-preset-5 text-right"
+        >
           {helperText}
         </p>
       )}
