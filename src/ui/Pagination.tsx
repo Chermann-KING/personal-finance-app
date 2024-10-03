@@ -48,7 +48,7 @@ export default function Pagination({
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-    // Ajuster le début si la plage dépasse la limite des pages disponibles
+    // Ajuste le début si la plage dépasse la limite des pages disponibles
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -79,11 +79,12 @@ export default function Pagination({
         type="button"
         onClick={() => setPage(currentPage - 1)}
         disabled={currentPage === 1}
+        aria-label="Previous page"
         className={`h-10 p-4 rounded-lg flex items-center justify-center gap-2 bg-white border border-grey-300 text-grey-900${
           currentPage === 1 ? " opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        <CaretLeftIcon />
+        <CaretLeftIcon aria-hidden="true" />
         <span className="text-grey-900 text-preset-4">Prev</span>
       </button>
 
@@ -93,6 +94,7 @@ export default function Pagination({
           <button
             key={page}
             onClick={() => setPage(page)}
+            aria-current={currentPage === page ? "page" : undefined}
             className={`w-10 h-10 p-4 rounded-lg flex items-center justify-center ${
               currentPage === page
                 ? "bg-grey-900 text-white" // Style pour la page active
@@ -109,12 +111,13 @@ export default function Pagination({
         type="button"
         onClick={() => setPage(currentPage + 1)}
         disabled={currentPage === totalPages}
+        aria-label="Next page"
         className={`h-10 p-4 rounded-lg flex items-center justify-center gap-2 bg-white border border-grey-300 text-grey-900${
           currentPage === totalPages ? " opacity-50 cursor-not-allowed" : ""
         }`}
       >
         <span className="text-grey-900 text-preset-4">Next</span>
-        <CaretRightIcon />
+        <CaretRightIcon aria-hidden="true" />
       </button>
     </div>
   );
