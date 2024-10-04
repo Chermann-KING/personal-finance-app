@@ -16,19 +16,6 @@ function BudgetTransactionsPage({ params }: Props) {
     []
   );
 
-  // useEffect(() => {
-  //   if (category && transactions) {
-  //     console.log("Category:", category);
-  //     console.log("Transactions:", transactions);
-  //     const filteredTransactions = transactions.filter(
-  //       (transaction) =>
-  //         transaction.category.trim().toLowerCase() ===
-  //         category.trim().toLowerCase()
-  //     );
-  //     setBudgetTransactions(filteredTransactions);
-  //   }
-  // }, [category, transactions]);
-
   useEffect(() => {
     if (category && transactions) {
       console.log("Category:", category);
