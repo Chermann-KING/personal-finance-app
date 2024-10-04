@@ -130,7 +130,7 @@ const Sidebar = (): JSX.Element => {
         <button
           type="button"
           onClick={toggleSidebar}
-          className="flex items-center gap-3 text-grey-300 focus:outline-none px-5 py-5"
+          className="flex items-center gap-3 text-grey-300 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-grey-500 transition-all duration-300 rounded-r-xl px-5 py-5"
         >
           <ToggleSidebarIcon
             className={`transform ${isOpen ? "" : "rotate-180"}`}
