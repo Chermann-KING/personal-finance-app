@@ -5,7 +5,7 @@ import { usePot, PotProvider } from "@/context/PotContext";
 import { Pot } from "@/types";
 
 import PotPopup from "@/ui/AddOrEditPotPopup";
-import PotList from "@/components/Dashboard/Pots/PotList";
+import Pots from "@/components/Dashboard/Pots/Pots";
 import PotTransactionModal from "@/ui/PotTransactionModal";
 import HeaderPage from "@/components/Dashboard/HeaderPage";
 
@@ -33,6 +33,8 @@ function PotsPage() {
       addPot(potWithTotal);
       console.log("Pot ajouté :", potWithTotal);
     }
+    setModalOpen(false); // Fermer la popup après la soumission
+    setPotToEdit(null); // Réinitialiser l'état du pot à éditer
   };
 
   // Ouvre la modal pour ajouter ou retirer de l'argent
@@ -93,7 +95,7 @@ function PotsPage() {
       )}
 
       {/* Pots */}
-      <PotList
+      <Pots
         onEditPot={handleEditPot}
         onDeletePot={handleDeletePot}
         onAddMoney={(pot) => openTransactionModal(pot, "add")}

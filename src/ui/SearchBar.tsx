@@ -38,7 +38,7 @@ export default function SearchBar({
         name="search"
         placeholder={placeholderText}
         aria-label="Search field"
-        className={`block w-full rounded-md border-0 py-3.5 px-5 pr-10 md:pr-10 sm:pr-10 text-grey-900 ring-1 ring-inset ring-grey-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-black sm:text-preset-5`}
+        className={`block w-full rounded-md border-0 py-3.5 px-5 pr-10 md:pr-10 sm:pr-10 text-grey-900 ring-1 ring-inset ring-grey-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-gray-900 sm:text-preset-5`}
         style={placeholderStyle}
         onChange={(e) => setSearchQuery(e.target.value)}
       />

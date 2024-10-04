@@ -47,7 +47,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variantStyles = {
       primary: "bg-grey-900 text-white hover:bg-grey-500 focus:ring-grey-500",
       secondary:
-        "bg-beige-100 text-grey-900 border border-beige-100 hover:bg-white hover:border-beige-500 focus:ring-beige-100",
+        "bg-beige-100 text-grey-900 border border-beige-100 hover:bg-white hover:border-beige-500 focus:ring-beige-500",
       tertiary: "text-grey-500 hover:text-grey-900 focus:ring-grey-500",
       destroy: "bg-red text-white hover:opacity-80 focus:ring-red",
     };

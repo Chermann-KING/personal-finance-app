@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CloseModalIcon from "@/assets/images/icon-close-modal.svg";
 import Button from "@/ui/Button";
 import InputField from "@/ui/InputField";
@@ -36,18 +36,42 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
   onSubmit,
   actionType,
 }) => {
+  // State pour le montant entré par l'utilisateur
   const [amount, setAmount] = useState<number | "">("");
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null; // Ne rien afficher si la popup n'est pas ouverte
+  /**
+   * Références pour gérer le focus et le cycle du focus dans la modale
+   */
+  const modalRef = useRef<HTMLDivElement>(null);
+  const firstFocusableRef = useRef<HTMLInputElement | null>(null);
+  const closeModalButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  /**
+   * Capture le focus sur le premier élément focusable lors de l'ouverture de la popup
+   */
+  useEffect(() => {
+    if (isOpen && firstFocusableRef.current) {
+      firstFocusableRef.current.focus();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null; // Ne rien afficher si la modale est fermée
+
+  /**
+   * Conversion de l'entrée utilisateur en nombre
+   */
   const amountNumber = amount ? Number(amount) : 0;
 
-  // Calcul du nouveau total après ajout ou retrait
+  /**
+   * Calcul du nouveau total après ajout ou retrait
+   */
   const newTotal =
     actionType === "add" ? pot.total + amountNumber : pot.total - amountNumber;
 
-  // Validation du montant saisi
+  /**
+   * Fonction permettant la validation du montant saisi
+   */
   const validateAmount = () => {
     if (amountNumber <= 0) {
       setError("The amount must be greater than zero.");
@@ -65,7 +89,9 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
     return true;
   };
 
-  // Calcul de la largeur de la barre de progression actuelle et après l'opération
+  /**
+   * Calcul de la largeur de la barre de progression avant et après l'opération
+   */
   const currentPercentage = (pot.total / pot.target) * 100;
   const newPercentage = Math.min((newTotal / pot.target) * 100, 100);
 
@@ -77,22 +103,66 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
     }
   };
 
+  /**
+   * Gestion du cycle de focus (Tab et Shift+Tab).
+   * Permet de boucler le focus dans la popup en empêchant de sortir des éléments interactifs.
+   * Si "Tab" est utilisé sur le dernier élément, il retourne au premier, et inversement avec "Shift+Tab".
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Tab") {
+      const focusableElements = modalRef.current?.querySelectorAll(
+        "button, input, [tabindex]:not([tabindex='-1'])"
+      );
+      if (focusableElements) {
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[
+          focusableElements.length - 1
+        ] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          // Si Shift+Tab et on est sur le premier élément, boucler vers le dernier
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          // Si Tab et on est sur le dernier élément, boucler vers le premier
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50">
+    <div
+      ref={modalRef}
+      onKeyDown={handleKeyDown}
+      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50"
+    >
       <div className="bg-white flex flex-col gap-y-5 rounded-lg p-8 w-[560px]">
+        {/* Header de la modale */}
         <div className="flex justify-between items-center">
           <h2 className="text-preset-1 text-grey-900 font-bold">
             {actionType === "add"
               ? `Add to '${pot.name}'`
               : `Withdraw from '${pot.name}'`}
           </h2>
-          <CloseModalIcon
-            className="text-grey-500 cursor-pointer"
+          <button
+            ref={closeModalButtonRef}
+            type="button"
             onClick={onClose}
-          />
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+            aria-controls="close-popup"
+            className="rounded-full"
+          >
+            <CloseModalIcon
+              className="text-grey-500 cursor-pointer"
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
-        {/* Barre d'information */}
+        {/* Message explicatif */}
         <p className="text-preset-4 text-grey-500">
           {actionType === "add"
             ? "Add funds to this savings pot to reach your goals faster. Every contribution brings you closer to your target."
@@ -155,6 +225,7 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
 
         {/* Champ de saisie pour le montant */}
         <InputField
+          ref={firstFocusableRef}
           label={actionType === "add" ? "Amount to Add" : "Amount to Withdraw"}
           name="amount"
           type="number"
@@ -167,7 +238,7 @@ const PotTransactionModal: React.FC<PotTransactionModalProps> = ({
         {/* Affichage des erreurs */}
         {error && <p className="text-preset-4 text-red">{error}</p>}
 
-        {/* Bouton d'action */}
+        {/* Bouton de soumission */}
         <Button onClick={handleSubmit} className="w-full" variant="primary">
           {actionType === "add" ? "Confirm Addition" : "Confirm Withdrawal"}
         </Button>
