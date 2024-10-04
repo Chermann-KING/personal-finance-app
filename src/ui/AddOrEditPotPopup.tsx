@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import CloseModalIcon from "@/assets/images/icon-close-modal.svg";
 import InputField from "@/ui/InputField";
 import Button from "@/ui/Button";
@@ -47,7 +47,13 @@ const PotPopup: React.FC<PotPopupProps> = ({
   const [target, setTarget] = useState<number | "">(0); // État pour l'objectif d'épargne
   const [theme, setTheme] = useState<string>("#277C78"); // État pour le thème de couleur
 
-  // Met à jour les champs du formulaire si un pot est en cours d'édition
+  const popupRef = useRef<HTMLDivElement>(null);
+  const firstFocusableElementRef = useRef<HTMLButtonElement | null>(null);
+  const closeModalButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /**
+   * Effet mettant à jour les champs du formulaire si un pot est en cours d'édition
+   */
   useEffect(() => {
     if (potToEdit) {
       setName(potToEdit.name);
@@ -60,7 +66,45 @@ const PotPopup: React.FC<PotPopupProps> = ({
     }
   }, [potToEdit]);
 
-  // Valide les champs et soumet les données du pot
+  /**
+   * Effet Capturant le focus dans la popup quand elle est ouverte
+   */
+  useEffect(() => {
+    if (isOpen && popupRef.current && firstFocusableElementRef.current) {
+      firstFocusableElementRef.current.focus();
+    }
+  }, [isOpen]);
+
+  /**
+   * Fonction permettant de gérer le cycle du focus dans la popup
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Tab") {
+      const focusableElements = popupRef.current?.querySelectorAll(
+        "button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
+      );
+      if (focusableElements) {
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[
+          focusableElements.length - 1
+        ] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          // Si Shift+Tab est appuyé et que l'on est sur le premier élément, on met le focus sur le dernier
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          // Si Tab est appuyé et que l'on est sur le dernier élément, on met le focus sur le premier
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  };
+
+  /**
+   * Fonction permettant la validation et soumission du pot
+   */
   const handleSave = () => {
     if (!name || target === "" || !theme) return;
     onSubmit({ name, target: Number(target), theme });
@@ -70,17 +114,31 @@ const PotPopup: React.FC<PotPopupProps> = ({
   if (!isOpen) return null; // Ne rien afficher si la popup n'est pas ouverte
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50"
+      onKeyDown={handleKeyDown}
+      ref={popupRef}
+    >
       <div className="bg-white flex flex-col gap-y-5 rounded-lg p-8 w-[560px] mx-4">
         {/* En-tête de la popup */}
         <div className="flex justify-between items-center">
           <h2 className="text-preset-1 text-grey-900 font-bold">
             {potToEdit ? "Edit Pot" : "Add New Pot"}
           </h2>
-          <CloseModalIcon
-            className="text-grey-500 cursor-pointer"
+          <button
+            ref={closeModalButtonRef}
+            type="button"
             onClick={onClose}
-          />
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+            aria-controls="close-popup"
+            className="rounded-full"
+          >
+            <CloseModalIcon
+              className="text-grey-500 cursor-pointer"
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
         {/* Message explicatif */}
@@ -123,7 +181,12 @@ const PotPopup: React.FC<PotPopupProps> = ({
         </div>
 
         {/* Bouton d'action */}
-        <Button onClick={handleSave} className="w-full" variant="primary">
+        <Button
+          ref={firstFocusableElementRef}
+          onClick={handleSave}
+          className="w-full"
+          variant="primary"
+        >
           {potToEdit ? "Save Changes" : "Add Pot"}
         </Button>
       </div>
