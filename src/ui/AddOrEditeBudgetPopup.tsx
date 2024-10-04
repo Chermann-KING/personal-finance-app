@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { BudgetContext } from "@/context/BudgetContext";
 import CategoriesDropdown, {
   CategoryDropdownOptions,
@@ -47,7 +47,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
   budgetToEdit,
   onSubmit,
 }) => {
-  const budgetContext = useContext(BudgetContext); // Récupération des budgets depuis le contexte
+  const budgetContext = useContext(BudgetContext);
   const budgets = budgetContext ? budgetContext.budgets : [];
 
   const [category, setCategory] = useState<CategoryDropdownOptions | undefined>(
@@ -56,7 +56,13 @@ const BudgetPopup: React.FC<PopupProps> = ({
   const [maximum, setMaximum] = useState<number | "">(0);
   const [theme, setTheme] = useState<string>("#277C78");
 
-  // Met à jour les champs du formulaire si un budget est en cours d'édition
+  const popupRef = useRef<HTMLDivElement>(null);
+  const firstFocusableElementRef = useRef<HTMLButtonElement | null>(null);
+  const closeModalButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /**
+   * Effet mettant à jour les champs du formulaire si un budget est en cours d'édition
+   */
   useEffect(() => {
     if (budgetToEdit) {
       setCategory(budgetToEdit.category);
@@ -69,7 +75,18 @@ const BudgetPopup: React.FC<PopupProps> = ({
     }
   }, [budgetToEdit]);
 
-  // Validation et soumission du budget
+  /**
+   * Effet Capturant le focus dans la popup quand elle est ouverte
+   */
+  useEffect(() => {
+    if (isOpen && popupRef.current && firstFocusableElementRef.current) {
+      firstFocusableElementRef.current.focus();
+    }
+  }, [isOpen]);
+
+  /**
+   * Fonction permettant la validation et soumission du budget
+   */
   const handleSave = () => {
     if (maximum === "" || !category || !theme) return;
     onSubmit({ category, maximum: Number(maximum), theme });
@@ -78,18 +95,60 @@ const BudgetPopup: React.FC<PopupProps> = ({
 
   if (!isOpen) return null; // Ne rien afficher si la popup n'est pas ouverte
 
+  /**
+   * Fonction permettant de gérer le cycle du focus dans la popup
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Tab") {
+      const focusableElements = popupRef.current?.querySelectorAll(
+        "button, input, select, textarea, [tabindex]:not([tabindex='-1'])"
+      );
+      if (focusableElements) {
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[
+          focusableElements.length - 1
+        ] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          // Si Shift+Tab est appuyé et que l'on est sur le premier élément, on met le focus sur le dernier
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          // Si Tab est appuyé et que l'on est sur le dernier élément, on met le focus sur le premier
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50">
+    <div
+      onKeyDown={handleKeyDown}
+      ref={popupRef}
+      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-0 flex justify-center items-center z-50"
+    >
       <div className="bg-white flex flex-col gap-y-5 rounded-lg p-8 w-[560px] mx-4">
         {/* En-tête de la popup */}
         <div className="flex justify-between items-center">
           <h2 className="text-preset-1 text-grey-900 font-bold">
             {budgetToEdit ? "Edit Budget" : "Add New Budget"}
           </h2>
-          <CloseModalIcon
-            className="text-grey-500 cursor-pointer"
+          {/* Bouton de fermeture de la popup */}
+          <button
+            ref={closeModalButtonRef}
+            type="button"
             onClick={onClose}
-          />
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+            aria-controls="close-popup"
+            className="rounded-full"
+          >
+            <CloseModalIcon
+              className="text-grey-500 cursor-pointer"
+              aria-hidden="true"
+            />
+          </button>
         </div>
 
         {/* Message explicatif */}
@@ -140,7 +199,12 @@ const BudgetPopup: React.FC<PopupProps> = ({
         </div>
 
         {/* Bouton d'action */}
-        <Button onClick={handleSave} className="w-full" variant="primary">
+        <Button
+          ref={firstFocusableElementRef}
+          onClick={handleSave}
+          className="w-full"
+          variant="primary"
+        >
           {budgetToEdit ? "Save Changes" : "Add Budget"}
         </Button>
       </div>
