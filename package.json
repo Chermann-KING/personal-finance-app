@@ -10,16 +10,18 @@
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
+    "@types/mongoose": "^5.11.97",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.4",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.1",
-    "next": "14.2.8",
+    "mongoose": "^8.7.0",
+    "next": "^14.2.14",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
-    "vercel": "^28.18.5"
+    "vercel": "^37.6.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

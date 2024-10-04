@@ -1,21 +1,25 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
 import { hash } from "bcryptjs";
+import connectToDatabase from "@/lib/db";
+import User from "@/models/User";
 
 export async function POST(req: Request) {
   const { name, email, password } = await req.json();
 
   // Vérification des champs requis
-  if (!email || !password) {
+  if (!email || !password || !name) {
     return NextResponse.json(
-      { error: "Email and password are required" },
+      { error: "All fields (name, email, password) are required" },
       { status: 400 }
     );
   }
 
+  // Normalise l'email
+  const normalizedEmail = email.trim().toLowerCase();
+
   // Validation de l'email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(normalizedEmail)) {
     return NextResponse.json(
       { error: "Invalid email format" },
       { status: 400 }
@@ -30,29 +34,38 @@ export async function POST(req: Request) {
     );
   }
 
-  const db = await connectToDatabase();
-  const usersCollection = db.collection("users");
+  // Connexion à la base de données via Mongoose
+  await connectToDatabase();
 
-  const existingUser = await usersCollection.findOne({ email });
-  if (existingUser) {
-    return NextResponse.json({ error: "User already exists" }, { status: 422 });
-  }
+  try {
+    // Vérifie si l'utilisateur existe déjà dans la collection
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 422 }
+      );
+    }
 
-  const hashedPassword = await hash(password, 12);
+    // Hache le mot de passe
+    const hashedPassword = await hash(password, 12);
 
-  const newUser = await usersCollection.insertOne({
-    name,
-    email,
-    password: hashedPassword,
-  });
+    // Crée et enregistre le nouvel utilisateur
+    const newUser = new User({
+      name,
+      email: normalizedEmail,
+      password: hashedPassword,
+      createdAt: new Date(),
+    });
 
-  if (newUser.insertedId) {
-    console.log("Utilisateur créé avec succès :", newUser.insertedId);
+    await newUser.save(); // Enregistre le nouvel utilisateur dans la collection
+
     return NextResponse.json(
       { message: "User created successfully" },
       { status: 201 }
     );
-  } else {
+  } catch (error) {
+    console.error("Erreur lors de la création de l'utilisateur:", error);
     return NextResponse.json(
       { error: "Failed to create user" },
       { status: 500 }

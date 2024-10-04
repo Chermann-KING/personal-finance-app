@@ -1,75 +1,92 @@
 import { NextResponse } from "next/server";
 import { compare } from "bcryptjs";
-import { connectToDatabase } from "@/lib/db";
+import connectToDatabase from "@/lib/db";
 import { sign } from "jsonwebtoken";
 import { loginAttempts } from "@/lib/loginAttempts";
+import User from "@/models/User"; // Modèle Mongoose pour User
 
 export async function POST(req: Request) {
   try {
-    // console.log("Requête reçue pour l'authentification");
-
+    // Récupère et normalise les données d'email et de mot de passe
     const { email, password } = await req.json();
-    // console.log("Email et mot de passe reçus :", email);
+    const normalizedEmail = email.trim().toLowerCase();
 
     const now = Date.now();
-    const attempts = loginAttempts[email] || [];
+    const attempts = loginAttempts[normalizedEmail] || [];
 
     // Filtre les tentatives récentes (moins de 60 secondes)
-    loginAttempts[email] = attempts.filter((attempt) => now - attempt < 60000);
+    loginAttempts[normalizedEmail] = attempts.filter(
+      (attempt) => now - attempt < 60000
+    );
 
     // Vérification des tentatives après filtrage
-    if (loginAttempts[email].length > 4) {
+    if (loginAttempts[normalizedEmail].length > 4) {
       return NextResponse.json(
         { error: "Too many login attempts. Please try again later." },
         { status: 429 }
       );
     }
 
-    // Ajoute une nouvelle tentative
-    loginAttempts[email].push(now);
+    // Ajoute une nouvelle tentative de connexion
+    loginAttempts[normalizedEmail].push(now);
 
-    const db = await connectToDatabase();
-    const usersCollection = db.collection("users");
-    // console.log("Connexion à la base de données réussie");
+    // Connexion à la base de données
+    await connectToDatabase();
 
-    const user = await usersCollection.findOne({ email });
+    // Recherche de l'utilisateur avec Mongoose
+    const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      // console.error("Utilisateur non trouvé :", email);
       return NextResponse.json({ error: "No user found" }, { status: 404 });
     }
 
+    // Vérifie la validité du mot de passe
     const isPasswordValid = await compare(password, user.password);
-
     if (!isPasswordValid) {
-      // console.error("Mot de passe incorrect pour l'utilisateur :", email);
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    // Génère le token JWT
+    // Génération du token JWT
     const token = sign(
       { email: user.email, id: user._id },
       process.env.JWT_SECRET || "default-secret",
-      {
-        expiresIn: "1h", // Le token expire dans 1 heure
-      }
+      { expiresIn: "1h" } // Le token expire dans 1 heure
     );
 
-    // Définit le token dans les cookies (httpOnly)
+    // Génération du token de rafraîchissement
+    const refreshToken = sign(
+      { email: user.email, id: user._id },
+      process.env.JWT_SECRET || "default-secret",
+      { expiresIn: "7d" } // Le token expire dans 7 jours
+    );
+
+    // Création de la réponse avec les cookies pour le token et le refreshToken
     const response = NextResponse.json(
-      { message: "Login successful", token }, // Ajoute le token dans la réponse JSON
+      {
+        message: "Login successful",
+        token,
+        refreshToken,
+      },
       { status: 200 }
     );
 
+    // Définit le token JWT dans un cookie (httpOnly)
     response.cookies.set("authToken", token, {
-      httpOnly: true, // Empêche JavaScript d'accéder au cookie
-      secure: process.env.NODE_ENV === "production", // Utilise le cookie sécurisé en production
-      sameSite: "strict", // Protège contre les attaques CSRF
-      path: "/", // Cookie accessible sur tout le site
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
       maxAge: 3600, // 1 heure
     });
 
-    // console.log("Réponse avec cookie authToken définie");
+    // Stocke également le refreshToken
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 3600 * 24 * 7, // 7 jours
+    });
 
     return response;
   } catch (error) {
