@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import CaretRightIcon from "@/assets/images/icon-caret-right.svg";
 
 /**
@@ -34,44 +34,45 @@ interface ButtonProps {
  * @param {ButtonProps} props - Les props nécessaires pour configurer le Button.
  * @returns JSX.Element
  */
-const Button: React.FC<ButtonProps> = ({
-  type = "button", // Type de bouton par défaut
-  variant,
-  children,
-  onClick,
-  disabled,
-  className,
-}) => {
-  // Styles de base du bouton
-  const baseStyles =
-    "inline-flex items-center justify-center rounded-lg px-[17px] py-5 text-preset-4 font-bold transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { type = "button", variant, children, onClick, disabled, className },
+    ref
+  ) => {
+    // Styles de base du bouton
+    const baseStyles =
+      "inline-flex items-center justify-center rounded-lg px-[17px] py-5 text-preset-4 font-bold transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
 
-  // Styles conditionnels selon la variante
-  const variantStyles = {
-    primary: "bg-grey-900 text-white hover:bg-grey-500 focus:ring-grey-500",
-    secondary:
-      "bg-beige-100 text-grey-900 border border-beige-100 hover:bg-white hover:border-beige-500 focus:ring-beige-100",
-    tertiary: "text-grey-500 hover:text-grey-900 focus:ring-grey-500",
-    destroy: "bg-red text-white hover:opacity-80 focus:ring-red",
-  };
+    // Styles conditionnels selon la variante
+    const variantStyles = {
+      primary: "bg-grey-900 text-white hover:bg-grey-500 focus:ring-grey-500",
+      secondary:
+        "bg-beige-100 text-grey-900 border border-beige-100 hover:bg-white hover:border-beige-500 focus:ring-beige-100",
+      tertiary: "text-grey-500 hover:text-grey-900 focus:ring-grey-500",
+      destroy: "bg-red text-white hover:opacity-80 focus:ring-red",
+    };
 
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled ? "true" : undefined}
-      className={`${baseStyles} ${variantStyles[variant]} ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
-      } ${className}`}
-    >
-      {children}
-      {/* Affiche l'icône CaretRight uniquement pour la variante 'tertiary' */}
-      {variant === "tertiary" && (
-        <CaretRightIcon className="ml-3" aria-hidden="true" />
-      )}
-    </button>
-  );
-};
+    return (
+      <button
+        ref={ref}
+        type={type}
+        onClick={onClick}
+        disabled={disabled}
+        aria-disabled={disabled ? "true" : undefined}
+        className={`${baseStyles} ${variantStyles[variant]} ${
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        } ${className}`}
+      >
+        {children}
+        {/* Affiche l'icône CaretRight uniquement pour la variante 'tertiary' */}
+        {variant === "tertiary" && (
+          <CaretRightIcon className="ml-3" aria-hidden="true" />
+        )}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
 
 export default Button;
