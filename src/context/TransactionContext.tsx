@@ -6,7 +6,6 @@ import {
   ReactNode,
 } from "react";
 import { Transaction, FetchOptions } from "@/types";
-import financialData from "@/data/financialData.json";
 
 /**
  * Interface pour les valeurs fournies par le contexte des transactions.
@@ -43,61 +42,41 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
    */
   const fetchTransactions = useCallback(
     async ({ page, searchQuery, sortBy, categoryFilter }: FetchOptions) => {
-      // Simuler l'appel à l'API avec des données locales
-      const allTransactions = financialData.transactions as Transaction[];
-
-      // Appliquer les filtres
-      let filteredTransactions = allTransactions;
-
-      if (categoryFilter !== "All Transactions") {
-        filteredTransactions = filteredTransactions.filter(
-          (transaction) => transaction.category === categoryFilter
-        );
-      }
-
-      if (searchQuery) {
-        filteredTransactions = filteredTransactions.filter((transaction) =>
-          transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-
-      // Trier les transactions
-      filteredTransactions.sort((a, b) => {
-        switch (sortBy) {
-          case "Latest":
-            return new Date(b.date).getTime() - new Date(a.date).getTime();
-          case "Oldest":
-            return new Date(a.date).getTime() - new Date(b.date).getTime();
-          case "A to Z":
-            return a.name.localeCompare(b.name);
-          case "Z to A":
-            return b.name.localeCompare(a.name);
-          case "Highest":
-            return b.amount - a.amount;
-          case "Lowest":
-            return a.amount - b.amount;
-          default:
-            return 0; // Pas de tri par défaut
+      try {
+        const url = new URL("/api/transactions", window.location.origin);
+        url.searchParams.set("page", String(page));
+        if (searchQuery) {
+          url.searchParams.set("search", searchQuery);
         }
-      });
+        if (sortBy) {
+          url.searchParams.set("sort", sortBy);
+        }
+        if (categoryFilter) {
+          url.searchParams.set("category", categoryFilter);
+        }
 
-      console.log("Transactions après tri:", filteredTransactions);
+        const response = await fetch(url.toString());
 
-      // Pagination
-      const transactionsPerPage = 10;
-      const startIndex = (page - 1) * transactionsPerPage;
-      const paginatedTransactions = filteredTransactions.slice(
-        startIndex,
-        startIndex + transactionsPerPage
-      );
+        if (!response.ok) {
+          throw new Error("Failed to fetch transactions");
+        }
 
-      setTransactions(paginatedTransactions);
-      console.log("Transactions mises à jour:", paginatedTransactions);
+        // Récupération des transactions et du total depuis l'API
+        const { transactions: fetchedTransactions, total } =
+          await response.json();
 
-      return {
-        transactions: paginatedTransactions,
-        total: filteredTransactions.length,
-      };
+        // Met à jour les transactions dans le state
+        setTransactions(fetchedTransactions);
+
+        // Renvoie les transactions et le total
+        return { transactions: fetchedTransactions, total };
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des transactions:",
+          error
+        );
+        throw error;
+      }
     },
     [] // Tableau de dépendances vide pour que la fonction soit stable
   );

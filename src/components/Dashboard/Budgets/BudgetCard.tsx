@@ -41,6 +41,15 @@ const BudgetCard: FC<BudgetCardProps> = ({
   const progressBarRef = useRef<HTMLDivElement>(null); // Référence pour la barre de progression
   const router = useRouter();
 
+  console.log("BudgetCard props :", {
+    category,
+    maximum,
+    spent,
+    remaining,
+    theme,
+    latestTransactions,
+  });
+
   // Fonction pour voir si la barre de progression est visible dans le viewport
   useEffect(() => {
     const progressBarElement = progressBarRef.current;
@@ -96,7 +105,7 @@ const BudgetCard: FC<BudgetCardProps> = ({
     maximum: number;
     theme: string;
   }) => {
-    editBudget(updatedBudget);
+    editBudget(updatedBudget as BudgetCardProps);
     closeEditPopup();
   };
 
@@ -106,7 +115,6 @@ const BudgetCard: FC<BudgetCardProps> = ({
   };
 
   return (
-    // w-[608px]
     <div className="w-full p-8 bg-white rounded-xl flex flex-col justify-start items-start gap-5">
       {/* Popup d'édition du budget */}
       <BudgetPopup

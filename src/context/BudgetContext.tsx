@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 import { Budget, Transaction } from "@/types";
-import financialData from "@/data/financialData.json";
+import axios from "axios";
 
 /**
  * Interface pour les valeurs fournies par le contexte des budgets.
@@ -9,10 +15,12 @@ import financialData from "@/data/financialData.json";
  * @property {function} addBudget - Fonction pour ajouter un nouveau budget.
  * @property {function} editBudget - Fonction pour modifier un budget existant.
  * @property {function} deleteBudget - Fonction pour supprimer un budget par sa catégorie.
+ * @property {function} fetchBudgets - Fonction pour récupérer les budgets depuis MongoDB.
  */
 interface BudgetContextProps {
   budgets: Budget[];
   transactions: Transaction[];
+  fetchBudgets: () => Promise<void>;
   addBudget: (newBudget: Budget) => void;
   editBudget: (updatedBudget: Budget) => void;
   deleteBudget: (category: string) => void;
@@ -43,7 +51,8 @@ export const useBudget = () => {
 /**
  * Composant BudgetProvider pour fournir le contexte des budgets à l'application.
  *
- * Ce composant gère l'état des budgets et permet d'ajouter, modifier, ou supprimer des budgets. Il expose ces données et fonctions à tous les composants enfants via le contexte `BudgetContext`.
+ * Ce composant gère l'état des budgets et permet d'ajouter, modifier, ou supprimer des budgets.
+ * Il expose ces données et fonctions à tous les composants enfants via le contexte `BudgetContext`.
  *
  * @param {ReactNode} children - Les composants enfants qui peuvent accéder au contexte des budgets.
  * @returns {JSX.Element} - Le provider de contexte des budgets avec ses valeurs et méthodes.
@@ -51,16 +60,43 @@ export const useBudget = () => {
 export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [budgets, setBudgets] = useState<Budget[]>(financialData.budgets); // État des budgets à partir des données initiales
-  const [transactions] = useState<Transaction[]>(financialData.transactions); // Transactions associées aux budgets
+  const [budgets, setBudgets] = useState<Budget[]>([]); // État des budgets
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  /**
+   * Fonction pour récupérer les budgets depuis MongoDB.
+   */
+  const fetchBudgets = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/budgets");
+
+      const { budgets: fetchedBudgets, transactions: fetchedTransactions } =
+        response.data;
+
+      setBudgets(fetchedBudgets);
+      setTransactions(fetchedTransactions);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération des budgets et transactions :",
+        error
+      );
+    }
+  }, []);
 
   /**
    * Fonction pour ajouter un nouveau budget.
    *
    * @param {Budget} newBudget - Le budget à ajouter.
    */
-  const addBudget = (newBudget: Budget) => {
-    setBudgets((prevBudgets) => [...prevBudgets, newBudget]);
+  const addBudget = async (newBudget: Budget) => {
+    try {
+      const response = await axios.post("/api/budgets", newBudget);
+
+      const createdBudget = response.data.budget;
+      setBudgets((prevBudgets) => [...prevBudgets, createdBudget]);
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du budget :", error);
+    }
   };
 
   /**
@@ -68,12 +104,23 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
    *
    * @param {Budget} updatedBudget - Le budget avec les nouvelles données à mettre à jour.
    */
-  const editBudget = (updatedBudget: Budget) => {
-    setBudgets((prevBudgets) =>
-      prevBudgets.map((budget) =>
-        budget.category === updatedBudget.category ? updatedBudget : budget
-      )
-    );
+  const editBudget = async (updatedBudget: Budget) => {
+    try {
+      const response = await axios.put(
+        `/api/budgets/${updatedBudget.category}`,
+        updatedBudget
+      );
+
+      setBudgets((prevBudgets) =>
+        prevBudgets.map((budget) =>
+          budget.category === updatedBudget.category
+            ? response.data.budget
+            : budget
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la modification du budget :", error);
+    }
   };
 
   /**
@@ -81,15 +128,28 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
    *
    * @param {string} category - La catégorie du budget à supprimer.
    */
-  const deleteBudget = (category: string) => {
-    setBudgets((prevBudgets) =>
-      prevBudgets.filter((budget) => budget.category !== category)
-    );
+  const deleteBudget = async (category: string) => {
+    try {
+      await axios.delete(`/api/budgets/${category}`);
+
+      setBudgets((prevBudgets) =>
+        prevBudgets.filter((budget) => budget.category !== category)
+      );
+    } catch (error) {
+      console.error("Erreur lors de la suppression du budget :", error);
+    }
   };
 
   return (
     <BudgetContext.Provider
-      value={{ budgets, transactions, addBudget, editBudget, deleteBudget }}
+      value={{
+        budgets,
+        transactions,
+        fetchBudgets,
+        addBudget,
+        editBudget,
+        deleteBudget,
+      }}
     >
       {children}
     </BudgetContext.Provider>

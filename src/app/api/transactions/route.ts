@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import financialData from "@/data/financialData.json";
-import { Transaction } from "@/types";
+import Transaction from "@/models/Transaction";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -12,46 +11,64 @@ export async function GET(req: Request) {
   const limit = 10;
   const skip = (Number(page) - 1) * limit;
 
-  // Typage et cast des données JSON
-  let transactions: Transaction[] = financialData.transactions;
+  try {
+    let query = {};
 
-  // Filtrage des catégories
-  if (category !== "All Transactions") {
-    transactions = transactions.filter(
-      (transaction) => transaction.category === category
-    );
-  }
+    // Filtrage par catégorie si une catégorie est spécifiée
+    if (category !== "All Transactions") {
+      query = { ...query, category };
+    }
 
-  // Recherche par nom
-  if (search) {
-    transactions = transactions.filter((transaction) =>
-      transaction.name.toLowerCase().includes(search.toLowerCase())
-    );
-  }
+    // Recherche par nom
+    if (search) {
+      query = {
+        ...query,
+        name: { $regex: search, $options: "i" }, // Recherche insensible à la casse
+      };
+    }
 
-  // Trier
-  transactions = transactions.sort((a, b) => {
+    // Création du pipeline de tri
+    let sortOption = {};
     switch (sort) {
       case "Latest":
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        sortOption = { date: -1 };
+        break;
       case "Oldest":
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
+        sortOption = { date: 1 };
+        break;
       case "A to Z":
-        return a.name.localeCompare(b.name);
+        sortOption = { name: 1 };
+        break;
       case "Z to A":
-        return b.name.localeCompare(a.name);
+        sortOption = { name: -1 };
+        break;
       case "Highest":
-        return b.amount - a.amount;
+        sortOption = { amount: -1 };
+        break;
       case "Lowest":
-        return a.amount - b.amount;
+        sortOption = { amount: 1 };
+        break;
       default:
-        return 0;
+        sortOption = { date: -1 };
     }
-  });
 
-  // Pagination des résultats
-  const paginatedTransactions = transactions.slice(skip, skip + limit);
+    // Récupère les transactions depuis MongoDB avec pagination, tri et recherche
+    const transactions = await Transaction.find(query)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
 
-  // Renvoi des données
-  return NextResponse.json({ transactions: paginatedTransactions });
+    // Compter le nombre total de transactions pour la pagination
+    const totalTransactions = await Transaction.countDocuments(query);
+
+    // Renvoi des transactions paginées et du total
+    return NextResponse.json({ transactions, total: totalTransactions });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des transactions :", error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch transactions" },
+      { status: 500 }
+    );
+  }
 }

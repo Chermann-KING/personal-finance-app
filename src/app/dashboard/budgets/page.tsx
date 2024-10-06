@@ -1,23 +1,42 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { BudgetProvider, useBudget } from "@/context/BudgetContext";
+import { Budget } from "@/types";
+import HeaderPage from "@/components/Dashboard/HeaderPage";
 import Budgets from "@/components/Dashboard/Budgets/Budgets";
 import BudgetCards from "@/components/Dashboard/Budgets/BudgetCards";
 import BudgetPopup from "@/ui/AddOrEditeBudgetPopup";
-import { useState } from "react";
-import { BudgetProvider } from "@/context/BudgetContext";
-import { Budget } from "@/types";
-import HeaderPage from "@/components/Dashboard/HeaderPage";
 
 function BudgetsPage() {
+  const { fetchBudgets } = useBudget();
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
 
   const handleAddBudgetClick = () => {
+    setBudgetToEdit(null);
     setIsPopupOpen(true);
   };
 
+  const { addBudget, editBudget } = useBudget();
+
+  useEffect(() => {
+    fetchBudgets();
+  }, [fetchBudgets]);
+
   const handleBudgetSubmit = (budget: Budget) => {
     console.log("Budget soumis :", budget);
-    // TODO: Ajouter ou modifier le budget dans le contexte
+
+    if (budgetToEdit) {
+      // Si un budget est en cours d'édition, on appelle editBudget
+      editBudget(budget);
+    } else {
+      // Sinon, on crée un nouveau budget
+      addBudget(budget);
+    }
+
+    setIsPopupOpen(false); // Ferme la popup après soumission
   };
 
   return (
@@ -34,6 +53,7 @@ function BudgetsPage() {
       <BudgetPopup
         isOpen={isPopupOpen}
         onClose={() => setIsPopupOpen(false)}
+        budgetToEdit={budgetToEdit || undefined}
         onSubmit={handleBudgetSubmit}
       />
       <div className="flex flex-col md:flex-row gap-6 sm:pb-[74px] lg:pb-0">

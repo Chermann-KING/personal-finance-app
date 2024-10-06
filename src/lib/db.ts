@@ -15,13 +15,14 @@ const connectToDatabase = async (): Promise<void> => {
   try {
     if (mongoose.connection.readyState === 0) {
       const uri = process.env.MONGODB_URI;
+      console.log("Connexion à MongoDB en cours...");
 
       // Vérifie que l'URI MongoDB est bien définie
       if (!uri) {
         throw new Error("Please add your MongoDB URI to .env.local");
       }
 
-      // Connexion à MongoDB avec Mongoose sans options obsolètes
+      // Connexion à MongoDB avec Mongoose
       await mongoose.connect(uri);
       console.log("Connexion réussie à MongoDB via Mongoose");
     }

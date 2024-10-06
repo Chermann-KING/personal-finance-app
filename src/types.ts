@@ -1,3 +1,5 @@
+import { CategoryDropdownOptions } from "./ui/CategoriesDropdown";
+
 export interface Balance {
   current: number;
   income: number;
@@ -21,7 +23,7 @@ export interface Pot {
 }
 
 export interface Budget {
-  category: string;
+  category: CategoryDropdownOptions;
   maximum: number;
   spent?: number;
   remaining?: number;

@@ -88,7 +88,16 @@ const BudgetPopup: React.FC<PopupProps> = ({
    * Fonction permettant la validation et soumission du budget
    */
   const handleSave = () => {
-    if (maximum === "" || !category || !theme) return;
+    console.log(
+      "Tentative de soumission de budget :",
+      category,
+      maximum,
+      theme
+    );
+    if (maximum === "" || !category || !theme) {
+      console.error("Tous les champs doivent être remplis.");
+      return; // Ne pas soumettre si un champ est manquant
+    }
     onSubmit({ category, maximum: Number(maximum), theme });
     onClose(); // Fermer la popup après soumission
   };
