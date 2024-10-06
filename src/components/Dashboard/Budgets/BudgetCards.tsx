@@ -13,10 +13,13 @@ export default function BudgetCards() {
           console.error("Budget sans catégorie:", budget);
           return null; // Ignorer les budgets sans catégorie
         }
+        console.log("Transactions dans BudgetCards :", transactions);
 
-        const categoryTransactions = transactions.filter(
-          (transaction) => transaction.category === budget.category
-        );
+        const categoryTransactions = transactions
+          ? transactions.filter(
+              (transaction) => transaction.category === budget.category
+            )
+          : []; // Retourner un tableau vide si transactions est undefined
 
         const mapCategoryToDropdownOption = (
           category: string

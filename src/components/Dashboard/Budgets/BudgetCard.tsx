@@ -184,7 +184,7 @@ const BudgetCard: FC<BudgetCardProps> = ({
             <div className="flex-col justify-center items-start gap-1 inline-flex">
               <p className="text-grey-500 text-preset-5">Remaining</p>
               <p className="text-grey-900 text-preset-4 font-bold">
-                ${remaining.toFixed(2)}
+                ${Math.max(0, remaining).toFixed(0)}
               </p>
             </div>
           </div>

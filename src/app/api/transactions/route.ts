@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import connectToDatabase from "@/lib/db";
 import Transaction from "@/models/Transaction";
+import Budget from "@/models/Budget";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -68,6 +70,53 @@ export async function GET(req: Request) {
 
     return NextResponse.json(
       { error: "Failed to fetch transactions" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST : Crée une nouvelle transaction et met à jour le budget associé
+export async function POST(req: Request) {
+  try {
+    await connectToDatabase();
+
+    const body = await req.json();
+
+    // Créer la nouvelle transaction
+    const newTransaction = await Transaction.create(body);
+
+    // Récupérer le budget associé à la catégorie de la transaction
+    const budget = await Budget.findOne({ category: newTransaction.category });
+
+    if (!budget) {
+      throw new Error("Budget not found for this transaction category");
+    }
+
+    // Ajouter la transaction au tableau `transactions` du budget
+    budget.transactions.push(newTransaction._id);
+
+    // Récupérer toutes les transactions associées au budget pour recalculer le montant `spent`
+    const transactionsForCategory = await Transaction.find({
+      _id: { $in: budget.transactions },
+    });
+
+    // Calculer le montant total "spent" pour le budget
+    budget.spent = transactionsForCategory.reduce(
+      (total, transaction) => total + Math.abs(transaction.amount),
+      0
+    );
+
+    // Mettre à jour le montant `remaining`
+    budget.remaining = budget.maximum - budget.spent;
+
+    // Sauvegarder les modifications dans le budget
+    await budget.save();
+
+    return NextResponse.json({ transaction: newTransaction, budget });
+  } catch (error) {
+    console.error("Failed to create transaction and update budget:", error);
+    return NextResponse.json(
+      { error: "Failed to create transaction and update budget" },
       { status: 500 }
     );
   }
