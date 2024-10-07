@@ -1,42 +1,38 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db";
 import Budget from "@/models/Budget";
-import Transaction from "@/models/Transaction";
 
-// GET : Récupère tous les budgets et calcule le montant "spent" pour chaque catégorie
+// GET : Récupère tous les budgets et leurs transactions associées, puis calcule le montant "spent"
 export async function GET() {
   try {
     await connectToDatabase();
 
-    // Récupère tous les budgets
-    const budgets = await Budget.find({});
+    // Récupère les budgets et les transactions associées
+    const budgets = await Budget.find({}).populate("transactions");
 
-    // Pour chaque budget, calculer le montant `spent` en fonction des transactions associées
-    const budgetsWithSpent = await Promise.all(
-      budgets.map(async (budget) => {
-        const transactionsForCategory = await Transaction.find({
-          _id: { $in: budget.transactions },
-        });
+    // Calcul du spent et remaining pour chaque budget
+    const budgetsWithTransactions = budgets.map((budget) => {
+      const spent = budget.transactions.reduce(
+        (total: number, transaction: { amount: number }) =>
+          total + Math.abs(transaction.amount),
+        0
+      );
+      const remaining = Math.max(0, budget.maximum - spent);
 
-        const spent = transactionsForCategory.reduce(
-          (total, transaction) => total + Math.abs(transaction.amount),
-          0
-        );
-
-        return {
-          ...budget._doc, // `_doc` permet d'accéder aux données brutes du document MongoDB
-          spent,
-          remaining: budget.maximum - spent,
-        };
-      })
-    );
-
-    return NextResponse.json({
-      budgets: budgetsWithSpent,
+      return {
+        ...budget._doc,
+        spent,
+        remaining,
+        transactions: budget.transactions, // Inclut les transactions peuplées
+      };
     });
+
+    // Retourne uniquement les budgets (transactions sont déjà inclues dans chaque budget)
+    return NextResponse.json({ budgets: budgetsWithTransactions });
   } catch (error) {
+    console.error("Erreur lors de la récupération des budgets :", error);
     return NextResponse.json(
-      { error: "Failed to fetch budgets and transactions" },
+      { error: "Failed to fetch budgets" },
       { status: 500 }
     );
   }

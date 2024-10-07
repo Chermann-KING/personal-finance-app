@@ -28,6 +28,7 @@ export interface Budget {
   spent?: number;
   remaining?: number;
   theme: string;
+  transactions?: Transaction[];
 }
 
 export interface Bill {

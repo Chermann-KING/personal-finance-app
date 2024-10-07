@@ -11,29 +11,39 @@ interface Props {
 
 function BudgetTransactionsPage({ params }: Props) {
   const { category } = params;
-  const { transactions } = useBudget();
+  const { budgets } = useBudget();
   const [budgetTransactions, setBudgetTransactions] = useState<Transaction[]>(
     []
   );
 
   useEffect(() => {
-    if (category && transactions) {
-      console.log("Category:", category);
-      console.log("Transactions:", transactions);
+    if (category && budgets.length > 0) {
+      // Trouver le budget correspondant à la catégorie
       const normalizedCategory = category.replace(/-/g, " ").toLowerCase();
-      const filteredTransactions = transactions.filter(
-        (transaction) =>
-          transaction.category.toLowerCase() === normalizedCategory
+      const budget = budgets.find(
+        (budget) => budget.category.toLowerCase() === normalizedCategory
       );
 
-      // Logs pour diagnostiquer le problème
-      console.log("Category from URL:", category);
-      console.log("Normalized category:", normalizedCategory);
-      console.log("Filtered Transactions:", filteredTransactions);
+      if (budget) {
+        console.log(`Budget trouvé pour la catégorie ${category}:`, budget);
+        console.log(`Transactions associées:`, budget.transactions);
 
-      setBudgetTransactions(filteredTransactions);
+        // S'assurer que transactions contient des données valides
+        if (
+          Array.isArray(budget.transactions) &&
+          budget.transactions.length > 0
+        ) {
+          setBudgetTransactions(budget.transactions);
+        } else {
+          console.log(
+            `Aucune transaction trouvée pour le budget ${budget.category}`
+          );
+        }
+      } else {
+        console.log("Aucun budget trouvé pour la catégorie :", category);
+      }
     }
-  }, [category, transactions]);
+  }, [category, budgets]);
 
   return (
     <div className="flex flex-col gap-8 p-8">

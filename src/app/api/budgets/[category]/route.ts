@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db";
 import Budget from "@/models/Budget";
 
-// GET : Récupère un budget par catégorie
+// GET : Récupère un budget par catégorie avec les transactions associées
 export async function GET(
   req: Request,
   { params }: { params: { category: string } }
@@ -10,7 +10,10 @@ export async function GET(
   try {
     await connectToDatabase();
 
-    const budget = await Budget.findOne({ category: params.category });
+    // Trouve le budget par catégorie et peuple les transactions associées
+    const budget = await Budget.findOne({ category: params.category }).populate(
+      "transactions"
+    );
 
     if (!budget) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 });

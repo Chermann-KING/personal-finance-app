@@ -60,8 +60,8 @@ export const useBudget = () => {
 export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [budgets, setBudgets] = useState<Budget[]>([]); // État des budgets
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [transactions] = useState<Transaction[]>([]);
 
   /**
    * Fonction pour récupérer les budgets depuis MongoDB.
@@ -70,16 +70,17 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await axios.get("/api/budgets");
 
-      const { budgets: fetchedBudgets, transactions: fetchedTransactions } =
-        response.data;
+      const { budgets: fetchedBudgets } = response.data;
 
-      setBudgets(fetchedBudgets);
-      setTransactions(fetchedTransactions);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des budgets et transactions :",
-        error
+      console.log(
+        "Budgets récupérés avec transactions incluses :",
+        fetchedBudgets
       );
+
+      // Mettre à jour uniquement les budgets
+      setBudgets(fetchedBudgets);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des budgets :", error);
     }
   }, []);
 

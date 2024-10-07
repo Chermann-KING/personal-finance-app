@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DoughnutChart from "@/ui/DoughnutChart";
-import financialData from "@/data/financialData.json";
-import { FinancialData } from "@/types";
-
-// Extraction des données depuis financialData.json
-const data: FinancialData = financialData;
+import { Budget } from "@/types";
+import axios from "axios";
 
 const Budgets: React.FC = () => {
-  const budgets = data.budgets;
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Calculs des dépenses et des limites
+  // Fonction pour récupérer les budgets depuis l'API
+  const fetchBudgets = async () => {
+    try {
+      const response = await axios.get("/api/budgets");
+      setBudgets(response.data.budgets);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des budgets :", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBudgets(); // Récupère les budgets lors du montage du composant
+  }, []);
+
+  // Afficher un indicateur de chargement pendant la récupération des données
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  // Calcul des dépenses et des limites
   const spent = budgets.reduce((acc, budget) => acc + (budget.spent ?? 0), 0);
   const limit = budgets.reduce((acc, budget) => acc + budget.maximum, 0);
 
@@ -25,6 +44,7 @@ const Budgets: React.FC = () => {
       },
     ],
   };
+
   return (
     <div className="self-stretch h-[599px] flex flex-col justify-evenly gap-y-8 bg-white rounded-lg p-8 py-3">
       {/* Doughnut Chart */}

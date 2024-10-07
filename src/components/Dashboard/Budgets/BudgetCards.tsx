@@ -4,7 +4,7 @@ import { useBudget } from "@/context/BudgetContext";
 import { CategoryDropdownOptions } from "@/ui/CategoriesDropdown";
 
 export default function BudgetCards() {
-  const { budgets, transactions } = useBudget();
+  const { budgets } = useBudget();
 
   return (
     <div className="self-stretch flex flex-col items-center gap-y-6">
@@ -13,13 +13,8 @@ export default function BudgetCards() {
           console.error("Budget sans catégorie:", budget);
           return null; // Ignorer les budgets sans catégorie
         }
-        console.log("Transactions dans BudgetCards :", transactions);
 
-        const categoryTransactions = transactions
-          ? transactions.filter(
-              (transaction) => transaction.category === budget.category
-            )
-          : []; // Retourner un tableau vide si transactions est undefined
+        const { transactions: categoryTransactions = [] } = budget;
 
         const mapCategoryToDropdownOption = (
           category: string
