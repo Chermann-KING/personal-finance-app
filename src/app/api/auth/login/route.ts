@@ -1,98 +1,56 @@
 import { NextResponse } from "next/server";
-import { compare } from "bcryptjs";
 import connectToDatabase from "@/lib/db";
-import { sign } from "jsonwebtoken";
-import { loginAttempts } from "@/lib/loginAttempts";
+
 import User from "@/models/User"; // Modèle Mongoose pour User
+import jwt from "jsonwebtoken";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    // Récupère et normalise les données d'email et de mot de passe
-    const { email, password } = await req.json();
-    const normalizedEmail = email.trim().toLowerCase();
+    await connectToDatabase();
+    const { email, password } = await request.json();
 
-    const now = Date.now();
-    const attempts = loginAttempts[normalizedEmail] || [];
-
-    // Filtre les tentatives récentes (moins de 60 secondes)
-    loginAttempts[normalizedEmail] = attempts.filter(
-      (attempt) => now - attempt < 60000
-    );
-
-    // Vérification des tentatives après filtrage
-    if (loginAttempts[normalizedEmail].length > 4) {
+    // Vérifier si l'utilisateur existe
+    const user = await User.findOne({ email });
+    if (!user) {
       return NextResponse.json(
-        { error: "Too many login attempts. Please try again later." },
-        { status: 429 }
+        { error: "Email ou mot de passe incorrect" },
+        { status: 401 }
       );
     }
 
-    // Ajoute une nouvelle tentative de connexion
-    loginAttempts[normalizedEmail].push(now);
-
-    // Connexion à la base de données
-    await connectToDatabase();
-
-    // Recherche de l'utilisateur avec Mongoose
-    const user = await User.findOne({ email: normalizedEmail });
-
-    if (!user) {
-      return NextResponse.json({ error: "No user found" }, { status: 404 });
-    }
-
-    // Vérifie la validité du mot de passe
-    const isPasswordValid = await compare(password, user.password);
+    // Vérifier le mot de passe
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Email ou mot de passe incorrect" },
+        { status: 401 }
+      );
     }
 
-    // Génération du token JWT
-    const token = sign(
-      { email: user.email, id: user._id },
+    // Créer le token JWT
+    const token = jwt.sign(
+      { userId: user._id },
       process.env.JWT_SECRET || "default-secret",
-      { expiresIn: "1h" } // Le token expire dans 1 heure
+      { expiresIn: "7d" }
     );
 
-    // Génération du token de rafraîchissement
-    const refreshToken = sign(
-      { email: user.email, id: user._id },
-      process.env.JWT_SECRET || "default-secret",
-      { expiresIn: "7d" } // Le token expire dans 7 jours
-    );
+    // Mettre à jour la dernière connexion
+    user.lastLogin = new Date();
+    await user.save();
 
-    // Création de la réponse avec les cookies pour le token et le refreshToken
-    const response = NextResponse.json(
-      {
-        message: "Login successful",
-        token,
-        refreshToken,
+    return NextResponse.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        preferences: user.preferences,
       },
-      { status: 200 }
-    );
-
-    // Définit le token JWT dans un cookie (httpOnly)
-    response.cookies.set("authToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 3600, // 1 heure
     });
-
-    // Stocke également le refreshToken
-    response.cookies.set("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 3600 * 24 * 7, // 7 jours
-    });
-
-    return response;
   } catch (error) {
-    console.error("Erreur lors du traitement de la requête :", error);
+    console.error("Erreur lors de la connexion:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Erreur lors de la connexion" },
       { status: 500 }
     );
   }

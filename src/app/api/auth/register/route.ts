@@ -1,73 +1,57 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
 import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
 
-export async function POST(req: Request) {
-  const { name, email, password } = await req.json();
-
-  // Vérification des champs requis
-  if (!email || !password || !name) {
-    return NextResponse.json(
-      { error: "All fields (name, email, password) are required" },
-      { status: 400 }
-    );
-  }
-
-  // Normalise l'email
-  const normalizedEmail = email.trim().toLowerCase();
-
-  // Validation de l'email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(normalizedEmail)) {
-    return NextResponse.json(
-      { error: "Invalid email format" },
-      { status: 400 }
-    );
-  }
-
-  // Validation du mot de passe
-  if (password.length < 8) {
-    return NextResponse.json(
-      { error: "Password must be at least 8 characters long" },
-      { status: 400 }
-    );
-  }
-
-  // Connexion à la base de données via Mongoose
-  await connectToDatabase();
-
+export async function POST(request: Request) {
   try {
-    // Vérifie si l'utilisateur existe déjà dans la collection
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    await connectToDatabase();
+    const { name, email, password } = await request.json();
+
+    // Vérifier si l'email existe déjà
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
-        { status: 422 }
+        { error: "Cet email est déjà utilisé" },
+        { status: 400 }
       );
     }
 
-    // Hache le mot de passe
-    const hashedPassword = await hash(password, 12);
-
-    // Crée et enregistre le nouvel utilisateur
-    const newUser = new User({
+    // Créer le nouvel utilisateur
+    const user = await User.create({
       name,
-      email: normalizedEmail,
-      password: hashedPassword,
-      createdAt: new Date(),
+      email,
+      password,
+      preferences: {
+        currency: "EUR",
+        language: "fr",
+        notifications: {
+          email: true,
+          push: true,
+        },
+      },
     });
 
-    await newUser.save(); // Enregistre le nouvel utilisateur dans la collection
-
-    return NextResponse.json(
-      { message: "User created successfully" },
-      { status: 201 }
+    // Créer le token JWT
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "default-secret",
+      { expiresIn: "7d" }
     );
+
+    return NextResponse.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        preferences: user.preferences,
+      },
+    });
   } catch (error) {
-    console.error("Erreur lors de la création de l'utilisateur:", error);
+    console.error("Erreur lors de l'inscription:", error);
     return NextResponse.json(
-      { error: "Failed to create user" },
+      { error: "Erreur lors de l'inscription" },
       { status: 500 }
     );
   }
