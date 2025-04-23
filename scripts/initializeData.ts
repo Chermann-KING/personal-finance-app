@@ -3,7 +3,7 @@ import connectToDatabase from "../src/lib/db";
 import User from "../src/models/User";
 import Transaction from "../src/models/Transaction";
 import Budget from "../src/models/Budget";
-import Pot from "../src/models/Pot";
+import { Pot } from "../src/models/Pot";
 import transactionsData from "../src/data/transactions.json";
 import financialData from "../src/data/financialData.json";
 

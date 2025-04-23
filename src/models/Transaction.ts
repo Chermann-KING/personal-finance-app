@@ -1,4 +1,37 @@
-import { Schema, model, models, Types } from "mongoose";
+import { Schema, model, models, Types, Model, Document } from "mongoose";
+
+interface ITransaction extends Document {
+  userId: Types.ObjectId;
+  avatar: string;
+  name: string;
+  category: string;
+  date: Date;
+  amount: number;
+  recurring: boolean;
+  description?: string;
+  status?: string;
+  recurringDetails?: {
+    frequency?: string;
+    nextDate?: Date;
+    endDate?: Date;
+  };
+  metadata?: {
+    location?: string;
+    tags?: string[];
+    receipt?: string;
+  };
+}
+
+interface TransactionModel extends Model<ITransaction> {
+  calculateBalance(
+    userId: string
+  ): Promise<{ income: number; expenses: number; total: number }>;
+  getCategoryStats(
+    userId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Array<{ _id: string; total: number; count: number }>>;
+}
 
 const transactionSchema = new Schema(
   {
@@ -83,7 +116,7 @@ transactionSchema.statics.getCategoryStats = async function (
   ]);
 };
 
-const Transaction =
-  models.Transaction || model("Transaction", transactionSchema);
+const Transaction = (models.Transaction ||
+  model("Transaction", transactionSchema)) as TransactionModel;
 
 export default Transaction;
