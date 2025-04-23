@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "insert-transactions": "ts-node --project tsconfig.scripts.json scripts/insertTransactions.ts"
+    "insert-transactions": "ts-node --project tsconfig.scripts.json scripts/insertTransactions.ts",
+    "init-db": "ts-node --project tsconfig.scripts.json scripts/initializeData.ts"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
