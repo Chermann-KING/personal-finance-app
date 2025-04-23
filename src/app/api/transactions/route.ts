@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import Transaction from "@/models/Transaction";
 import Budget from "@/models/Budget";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/config";
 
 interface TransactionQuery {
   userId: string;

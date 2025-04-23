@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import { Pot } from "@/models/Pot";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "../../auth/config";
 
 // GET : Récupère un pot spécifique
 export async function GET(

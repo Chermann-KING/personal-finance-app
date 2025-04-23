@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import Budget from "@/models/Budget";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "../auth/config";
 
 // GET : Récupère tous les budgets et leurs transactions associées, puis calcule le montant "spent"
 export async function GET() {
