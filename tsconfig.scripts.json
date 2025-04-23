@@ -1,10 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "noEmit": true
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+    "isolatedModules": true
   },
-  "include": ["scripts/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["scripts/**/*"]
 }

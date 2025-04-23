@@ -50,12 +50,6 @@ function BudgetTransactionsPage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-8 p-8">
-      {/* Affichage du message d'erreur si présent */}
-      {error && (
-        <div className="mx-auto w-[1060px] p-4 bg-red-100 text-red-800 rounded">
-          {error}
-        </div>
-      )}
       {/* Header */}
       <div className="mx-auto w-[1060px] h-14 py-2 flex justify-between items-center gap-6">
         <h1 className="text-preset-1 font-bold mb-4 capitalize">
@@ -70,7 +64,13 @@ function BudgetTransactionsPage({ params }: Props) {
         </button>
       </div>
       {/* Liste des transactions */}
-      <div className="mx-auto w-[1060px] flex gap-6 bg-white px-5 pb-3 rounded-2xl">
+      <div className="mx-auto w-[1060px] flex flex-col gap-6 bg-white px-5 pb-3 rounded-2xl">
+        {/* Affichage du message d'erreur si présent */}
+        {error && (
+          <div className="mx-auto w-[1060px] p-4 bg-red-100 text-red-800 rounded">
+            {error}
+          </div>
+        )}
         <TransactionsList transactions={budgetTransactions} />
       </div>
     </div>

@@ -122,7 +122,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         onKeyDown={handleButtonKeyDown} // Gestion de l'ouverture par clavier
         className="text-grey-500 cursor-pointer p-1"
       >
-        <EllipsisIcon />
+        <EllipsisIcon aria-hidden="true" />
       </button>
 
       {/* Menu dropdown */}

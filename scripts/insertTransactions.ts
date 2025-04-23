@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import connectToDatabase from "../src/lib/db";
 import Transaction from "../src/models/Transaction";
 import transactionsData from "../src/data/transactions.json";
+import * as dotenv from "dotenv";
+
+// Charger les variables d'environnement depuis .env.local
+dotenv.config({ path: ".env.local" });
 
 // Fonction principale pour insérer les transactions
 async function insertTransactions() {

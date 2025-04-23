@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "insert-transactions": "ts-node --project tsconfig.scripts.json scripts/insertTransactions.ts"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
@@ -14,6 +15,7 @@
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "chart.js": "^4.4.4",
+    "dotenv": "^16.5.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.1",
@@ -36,6 +38,7 @@
     "eslint-config-next": "14.2.8",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
