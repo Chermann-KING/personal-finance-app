@@ -1,3 +1,5 @@
+"use client";
+
 import {
   createContext,
   useState,
@@ -63,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    Cookies.remove("authToken", { path: "/auth/login" });
+    Cookies.remove("authToken", { path: "/" });
     setIsAuthenticated(false);
   };
 
