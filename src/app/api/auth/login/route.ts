@@ -1,33 +1,36 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db";
-
-import User from "@/models/User"; // Modèle Mongoose pour User
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   try {
-    await connectToDatabase();
     const { email, password } = await request.json();
 
-    // Vérifier si l'utilisateur existe
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email and password required" },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json(
-        { error: "Email ou mot de passe incorrect" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Vérifier le mot de passe
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
-        { error: "Email ou mot de passe incorrect" },
+        { error: "Incorrect password" },
         { status: 401 }
       );
     }
 
-    // Créer le token JWT
+    // Générer le token JWT
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || "default-secret",
@@ -50,7 +53,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Erreur lors de la connexion:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la connexion" },
+      { error: "Error while connecting" },
       { status: 500 }
     );
   }

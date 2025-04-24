@@ -42,32 +42,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Effet pour vérifier si un token d'authentification est déjà présent dans les cookies.
   useEffect(() => {
     const token = Cookies.get("authToken");
     if (token) {
       setUser(token);
-      setIsAuthenticated(true); // Si un token est présent, l'utilisateur est authentifié.
+      setIsAuthenticated(true);
     }
   }, []);
 
-  /**
-   * Fonction pour connecter l'utilisateur en stockant le token dans les cookies.
-   * @param {string} token - Le token d'authentification de l'utilisateur.
-   */
   const login = (token: string) => {
     setUser(token);
-    Cookies.set("authToken", token); // Stocke le token dans un cookie
-    setIsAuthenticated(true); // L'utilisateur est désormais authentifié
+    Cookies.set("authToken", token, {
+      expires: 7, // 7 jours
+      path: "/",
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+    setIsAuthenticated(true);
   };
 
-  /**
-   * Fonction pour déconnecter l'utilisateur en supprimant le token des cookies.
-   */
   const logout = () => {
     setUser(null);
-    Cookies.remove("authToken"); // Supprime le token du cookie
-    setIsAuthenticated(false); // L'utilisateur est désormais déconnecté
+    Cookies.remove("authToken", { path: "/auth/login" });
+    setIsAuthenticated(false);
   };
 
   // Fournit les valeurs d'authentification à tous les composants enfants

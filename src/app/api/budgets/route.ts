@@ -1,22 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import Budget from "@/models/Budget";
-import { authOptions } from "../auth/config";
+import { withAuth, type JWTPayload } from "@/auth/config";
 
 // GET : Récupère tous les budgets et leurs transactions associées, puis calcule le montant "spent"
-export async function GET() {
+export const GET = withAuth(async (req: Request, auth: JWTPayload) => {
   try {
-    // Vérifier l'authentification
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
     await connectToDatabase();
 
     // Récupère les budgets et les transactions associées
-    const budgets = await Budget.find({ userId: session.user.id }).populate(
+    const budgets = await Budget.find({ userId: auth.userId }).populate(
       "transactions"
     );
 
@@ -45,29 +38,20 @@ export async function GET() {
     // Gestion des erreurs spécifiques
     if (error instanceof Error) {
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la récupération des budgets" },
+      { error: "Failure to recover budgets" },
       { status: 500 }
     );
   }
-}
+});
 
 // POST : Crée un nouveau budget
-export async function POST(req: Request) {
+export const POST = withAuth(async (req: Request, auth: JWTPayload) => {
   try {
-    // Vérifier l'authentification
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
     await connectToDatabase();
 
     const body = await req.json();
@@ -76,7 +60,7 @@ export async function POST(req: Request) {
     if (!body.category || !body.maximum || !body.theme) {
       return NextResponse.json(
         {
-          error: "Données manquantes. Catégorie, maximum et thème sont requis.",
+          error: "Missing data. Category, maximum, and theme are required.",
         },
         { status: 400 }
       );
@@ -86,7 +70,7 @@ export async function POST(req: Request) {
     const maximum = parseFloat(body.maximum);
     if (isNaN(maximum) || maximum <= 0) {
       return NextResponse.json(
-        { error: "Le maximum doit être un nombre positif" },
+        { error: "The maximum must be a positive number" },
         { status: 400 }
       );
     }
@@ -94,12 +78,12 @@ export async function POST(req: Request) {
     // Vérifier si la catégorie existe déjà pour cet utilisateur
     const existingBudget = await Budget.findOne({
       category: body.category,
-      userId: session.user.id,
+      userId: auth.userId,
     });
 
     if (existingBudget) {
       return NextResponse.json(
-        { error: "Un budget avec cette catégorie existe déjà" },
+        { error: "A budget with this category already exists" },
         { status: 409 }
       );
     }
@@ -108,7 +92,7 @@ export async function POST(req: Request) {
     const budgetData = {
       ...body,
       maximum,
-      userId: session.user.id,
+      userId: auth.userId,
       transactions: body.transactions || [],
     };
 
@@ -118,7 +102,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         budget: newBudget,
-        message: "Budget créé avec succès",
+        message: "Budget successfully created",
       },
       { status: 201 }
     );
@@ -129,22 +113,19 @@ export async function POST(req: Request) {
     if (error instanceof Error) {
       if (error.name === "ValidationError") {
         return NextResponse.json(
-          { error: "Données de budget invalides", details: error.message },
+          { error: "Invalid budget data", details: error.message },
           { status: 400 }
         );
       }
 
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la création du budget" },
+      { error: "Failure to create the budget" },
       { status: 500 }
     );
   }
-}
+});
