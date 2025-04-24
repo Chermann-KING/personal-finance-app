@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import { Pot } from "@/models/Pot";
-import { authOptions } from "../../auth/config";
+import { verifyAuth } from "@/auth/config";
 
 // GET : Récupère un pot spécifique
 export async function GET(
@@ -10,37 +9,34 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
 
     const pot = await Pot.findOne({
       _id: params.id,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     if (!pot) {
-      return NextResponse.json({ error: "Pot non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: "Pot not found" }, { status: 404 });
     }
 
     return NextResponse.json({ pot });
   } catch (error) {
-    console.error("Erreur lors de la récupération du pot :", error);
+    console.error("Pot recovery error:", error);
 
     if (error instanceof Error) {
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la récupération du pot" },
+      { error: "Pot recovery failure" },
       { status: 500 }
     );
   }
@@ -52,9 +48,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -66,7 +62,7 @@ export async function PUT(
       const target = parseFloat(body.target);
       if (isNaN(target) || target <= 0) {
         return NextResponse.json(
-          { error: "L'objectif doit être un nombre positif" },
+          { error: "The target must be a positive number" },
           { status: 400 }
         );
       }
@@ -76,24 +72,24 @@ export async function PUT(
     // Vérifier si le pot existe
     const existingPot = await Pot.findOne({
       _id: params.id,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     if (!existingPot) {
-      return NextResponse.json({ error: "Pot non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: "Pot not found" }, { status: 404 });
     }
 
     // Vérifier si le nouveau nom n'est pas déjà utilisé
     if (body.name && body.name !== existingPot.name) {
       const nameExists = await Pot.findOne({
         name: body.name,
-        userId: session.user.id,
+        userId: auth.data.userId,
         _id: { $ne: params.id },
       });
 
       if (nameExists) {
         return NextResponse.json(
-          { error: "Un pot avec ce nom existe déjà" },
+          { error: "A pot with this name already exists" },
           { status: 409 }
         );
       }
@@ -102,7 +98,7 @@ export async function PUT(
     const updatedPot = await Pot.findOneAndUpdate(
       {
         _id: params.id,
-        userId: session.user.id,
+        userId: auth.data.userId,
       },
       body,
       { new: true }
@@ -110,31 +106,25 @@ export async function PUT(
 
     return NextResponse.json({
       pot: updatedPot,
-      message: "Pot mis à jour avec succès",
+      message: "Pot successfully updated",
     });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du pot :", error);
+    console.error("Error updating the pot :", error);
 
     if (error instanceof Error) {
       if (error.name === "ValidationError") {
         return NextResponse.json(
-          { error: "Données de pot invalides", details: error.message },
+          { error: "Invalid pot data", details: error.message },
           { status: 400 }
         );
       }
 
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
-    return NextResponse.json(
-      { error: "Échec de la mise à jour du pot" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Pot update failure" }, { status: 500 });
   }
 }
 
@@ -144,9 +134,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -154,35 +144,32 @@ export async function DELETE(
     // Vérifier si le pot existe
     const existingPot = await Pot.findOne({
       _id: params.id,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     if (!existingPot) {
-      return NextResponse.json({ error: "Pot non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: "Pot not found" }, { status: 404 });
     }
 
     await Pot.findOneAndDelete({
       _id: params.id,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     return NextResponse.json({
-      message: "Pot supprimé avec succès",
+      message: "Pot successfully removed",
     });
   } catch (error) {
-    console.error("Erreur lors de la suppression du pot :", error);
+    console.error("Error when deleting the pot :", error);
 
     if (error instanceof Error) {
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la suppression du pot" },
+      { error: "Unsuccessful pot removal" },
       { status: 500 }
     );
   }

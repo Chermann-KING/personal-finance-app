@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import Transaction from "@/models/Transaction";
 import Budget from "@/models/Budget";
-import { authOptions } from "../auth/config";
+import { verifyAuth } from "@/auth/config";
 
 interface TransactionQuery {
   userId: string;
@@ -14,9 +13,9 @@ interface TransactionQuery {
 export async function GET(req: Request) {
   try {
     // Vérifier l'authentification
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -31,7 +30,7 @@ export async function GET(req: Request) {
     const pageNum = parseInt(page);
     if (isNaN(pageNum) || pageNum < 1) {
       return NextResponse.json(
-        { error: "Paramètre de page invalide" },
+        { error: "Invalid page parameter" },
         { status: 400 }
       );
     }
@@ -39,7 +38,7 @@ export async function GET(req: Request) {
     const limit = 10;
     const skip = (pageNum - 1) * limit;
 
-    let query: TransactionQuery = { userId: session.user.id };
+    let query: TransactionQuery = { userId: auth.data.userId };
 
     // Filtrage par catégorie si une catégorie est spécifiée
     if (category !== "All Transactions") {
@@ -91,20 +90,17 @@ export async function GET(req: Request) {
     // Renvoi des transactions paginées et du total
     return NextResponse.json({ transactions, total: totalTransactions });
   } catch (error) {
-    console.error("Erreur lors de la récupération des transactions :", error);
+    console.error("Error retrieving transactions :", error);
 
     // Gestion des erreurs spécifiques
     if (error instanceof Error) {
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la récupération des transactions" },
+      { error: "Transaction recovery failure" },
       { status: 500 }
     );
   }
@@ -114,9 +110,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     // Vérifier l'authentification
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -127,8 +123,7 @@ export async function POST(req: Request) {
     if (!body.name || !body.category || !body.amount || !body.date) {
       return NextResponse.json(
         {
-          error:
-            "Données manquantes. Nom, catégorie, montant et date sont requis.",
+          error: "Missing data. Name, category, amount and date are required.",
         },
         { status: 400 }
       );
@@ -137,7 +132,7 @@ export async function POST(req: Request) {
     // Validation du montant
     if (isNaN(body.amount)) {
       return NextResponse.json(
-        { error: "Le montant doit être un nombre valide" },
+        { error: "The amount must be a valid number" },
         { status: 400 }
       );
     }
@@ -146,7 +141,7 @@ export async function POST(req: Request) {
     const date = new Date(body.date);
     if (isNaN(date.getTime())) {
       return NextResponse.json(
-        { error: "La date doit être une date valide" },
+        { error: "The date must be a valid date" },
         { status: 400 }
       );
     }
@@ -154,7 +149,7 @@ export async function POST(req: Request) {
     // Ajouter l'ID de l'utilisateur à la transaction
     const transactionData = {
       ...body,
-      userId: session.user.id,
+      userId: auth.data.userId,
       date: date,
     };
 
@@ -164,7 +159,7 @@ export async function POST(req: Request) {
     // Récupérer le budget associé à la catégorie de la transaction
     const budget = await Budget.findOne({
       category: newTransaction.category,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     if (!budget) {
@@ -173,14 +168,14 @@ export async function POST(req: Request) {
         category: newTransaction.category,
         maximum: 1000, // Valeur par défaut
         theme: "default",
-        userId: session.user.id,
+        userId: auth.data.userId,
         transactions: [newTransaction._id],
       });
 
       return NextResponse.json({
         transaction: newTransaction,
         budget: newBudget,
-        message: "Transaction créée et nouveau budget initialisé",
+        message: "Transaction created and new budget initiated",
       });
     }
 
@@ -190,7 +185,7 @@ export async function POST(req: Request) {
     // Récupérer toutes les transactions associées au budget pour recalculer le montant `spent`
     const transactionsForCategory = await Transaction.find({
       _id: { $in: budget.transactions },
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     // Calculer le montant total "spent" pour le budget
@@ -208,7 +203,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       transaction: newTransaction,
       budget,
-      message: "Transaction créée et budget mis à jour",
+      message: "Transaction created and budget updated",
     });
   } catch (error) {
     console.error(
@@ -220,23 +215,19 @@ export async function POST(req: Request) {
     if (error instanceof Error) {
       if (error.name === "ValidationError") {
         return NextResponse.json(
-          { error: "Données de transaction invalides", details: error.message },
+          { error: "Invalid transaction data", details: error.message },
           { status: 400 }
         );
       }
 
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
       {
-        error:
-          "Échec de la création de la transaction et de la mise à jour du budget",
+        error: "Failed to create transaction and update budget",
       },
       { status: 500 }
     );

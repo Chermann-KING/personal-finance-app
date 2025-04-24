@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import connectToDatabase from "@/lib/db";
 import { Pot } from "@/models/Pot";
-import { authOptions } from "../auth/config";
+import { verifyAuth } from "@/auth/config";
 
 interface PotQuery {
   userId: string;
@@ -12,9 +11,9 @@ interface PotQuery {
 // GET : Récupère tous les pots d'épargne
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -22,7 +21,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
 
-    let query: PotQuery = { userId: session.user.id };
+    let query: PotQuery = { userId: auth.data.userId };
 
     if (search) {
       query = {
@@ -35,19 +34,16 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ pots });
   } catch (error) {
-    console.error("Erreur lors de la récupération des pots :", error);
+    console.error("Error when retrieving pots:", error);
 
     if (error instanceof Error) {
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la récupération des pots" },
+      { error: "Failure to recover pots" },
       { status: 500 }
     );
   }
@@ -56,9 +52,9 @@ export async function GET(req: Request) {
 // POST : Crée un nouveau pot d'épargne
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const auth = await verifyAuth();
+    if (!auth.success || !auth.data) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
     }
 
     await connectToDatabase();
@@ -68,7 +64,7 @@ export async function POST(req: Request) {
     // Validation des données
     if (!body.name || !body.target) {
       return NextResponse.json(
-        { error: "Nom et objectif sont requis" },
+        { error: "Name and purpose are required" },
         { status: 400 }
       );
     }
@@ -77,7 +73,7 @@ export async function POST(req: Request) {
     const target = parseFloat(body.target);
     if (isNaN(target) || target <= 0) {
       return NextResponse.json(
-        { error: "L'objectif doit être un nombre positif" },
+        { error: "The target must be a positive number" },
         { status: 400 }
       );
     }
@@ -85,12 +81,12 @@ export async function POST(req: Request) {
     // Vérifier si un pot avec le même nom existe déjà
     const existingPot = await Pot.findOne({
       name: body.name,
-      userId: session.user.id,
+      userId: auth.data.userId,
     });
 
     if (existingPot) {
       return NextResponse.json(
-        { error: "Un pot avec ce nom existe déjà" },
+        { error: "A jar with this name already exists" },
         { status: 409 }
       );
     }
@@ -98,38 +94,35 @@ export async function POST(req: Request) {
     const newPot = await Pot.create({
       ...body,
       target,
-      userId: session.user.id,
+      userId: auth.data.userId,
       total: 0,
     });
 
     return NextResponse.json(
       {
         pot: newPot,
-        message: "Pot créé avec succès",
+        message: "Pot successfully created",
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Erreur lors de la création du pot :", error);
+    console.error("Error when creating the pot :", error);
 
     if (error instanceof Error) {
       if (error.name === "ValidationError") {
         return NextResponse.json(
-          { error: "Données de pot invalides", details: error.message },
+          { error: "Invalid pot data", details: error.message },
           { status: 400 }
         );
       }
 
       if (error.name === "MongoError" || error.name === "MongoServerError") {
-        return NextResponse.json(
-          { error: "Erreur de base de données" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
     }
 
     return NextResponse.json(
-      { error: "Échec de la création du pot" },
+      { error: "Failure to create the pot" },
       { status: 500 }
     );
   }
