@@ -12,18 +12,22 @@ import axios from "axios";
  * Interface pour les valeurs fournies par le contexte des budgets.
  * @property {Budget[]} budgets - Liste des budgets.
  * @property {Transaction[]} transactions - Liste des transactions associées aux budgets.
+ * @property {boolean} isLoading - Indicateur de chargement.
+ * @property {string | null} error - Message d'erreur éventuel.
+ * @property {function} fetchBudgets - Fonction pour récupérer les budgets depuis MongoDB.
  * @property {function} addBudget - Fonction pour ajouter un nouveau budget.
  * @property {function} editBudget - Fonction pour modifier un budget existant.
  * @property {function} deleteBudget - Fonction pour supprimer un budget par sa catégorie.
- * @property {function} fetchBudgets - Fonction pour récupérer les budgets depuis MongoDB.
  */
 interface BudgetContextProps {
   budgets: Budget[];
   transactions: Transaction[];
+  isLoading: boolean;
+  error: string | null;
   fetchBudgets: () => Promise<void>;
-  addBudget: (newBudget: Budget) => void;
-  editBudget: (updatedBudget: Budget) => void;
-  deleteBudget: (category: string) => void;
+  addBudget: (newBudget: Budget) => Promise<void>;
+  editBudget: (updatedBudget: Budget) => Promise<void>;
+  deleteBudget: (category: string) => Promise<void>;
 }
 
 // Création du contexte des budgets avec une valeur par défaut undefined
@@ -62,25 +66,26 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [transactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Fonction pour récupérer les budgets depuis MongoDB.
    */
   const fetchBudgets = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const response = await axios.get("/api/budgets");
-
       const { budgets: fetchedBudgets } = response.data;
-
-      console.log(
-        "Budgets récupérés avec transactions incluses :",
-        fetchedBudgets
-      );
-
-      // Mettre à jour uniquement les budgets
       setBudgets(fetchedBudgets);
     } catch (error) {
       console.error("Erreur lors de la récupération des budgets :", error);
+      setError(
+        "Impossible de récupérer les budgets. Veuillez réessayer plus tard."
+      );
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -90,13 +95,21 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
    * @param {Budget} newBudget - Le budget à ajouter.
    */
   const addBudget = async (newBudget: Budget) => {
+    setError(null);
     try {
       const response = await axios.post("/api/budgets", newBudget);
-
       const createdBudget = response.data.budget;
       setBudgets((prevBudgets) => [...prevBudgets, createdBudget]);
     } catch (error) {
       console.error("Erreur lors de l'ajout du budget :", error);
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        setError("Un budget avec cette catégorie existe déjà.");
+      } else {
+        setError(
+          "Impossible d'ajouter le budget. Veuillez réessayer plus tard."
+        );
+      }
+      throw error;
     }
   };
 
@@ -106,12 +119,12 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
    * @param {Budget} updatedBudget - Le budget avec les nouvelles données à mettre à jour.
    */
   const editBudget = async (updatedBudget: Budget) => {
+    setError(null);
     try {
       const response = await axios.put(
         `/api/budgets/${updatedBudget.category}`,
         updatedBudget
       );
-
       setBudgets((prevBudgets) =>
         prevBudgets.map((budget) =>
           budget.category === updatedBudget.category
@@ -121,6 +134,10 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
       );
     } catch (error) {
       console.error("Erreur lors de la modification du budget :", error);
+      setError(
+        "Impossible de modifier le budget. Veuillez réessayer plus tard."
+      );
+      throw error;
     }
   };
 
@@ -130,14 +147,18 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
    * @param {string} category - La catégorie du budget à supprimer.
    */
   const deleteBudget = async (category: string) => {
+    setError(null);
     try {
       await axios.delete(`/api/budgets/${category}`);
-
       setBudgets((prevBudgets) =>
         prevBudgets.filter((budget) => budget.category !== category)
       );
     } catch (error) {
       console.error("Erreur lors de la suppression du budget :", error);
+      setError(
+        "Impossible de supprimer le budget. Veuillez réessayer plus tard."
+      );
+      throw error;
     }
   };
 
@@ -146,6 +167,8 @@ export const BudgetProvider: React.FC<{ children: ReactNode }> = ({
       value={{
         budgets,
         transactions,
+        isLoading,
+        error,
         fetchBudgets,
         addBudget,
         editBudget,

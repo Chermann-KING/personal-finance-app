@@ -14,6 +14,7 @@ import Button from "./Button";
  * @property {function} onClose - Fonction de rappel pour fermer la fenêtre modale.
  * @property {{category: CategoryDropdownOptions; maximum: number; theme: string} | undefined} [budgetToEdit] - Le budget à éditer, ou `undefined` pour créer un nouveau budget.
  * @property {function} onSubmit - Fonction de rappel pour soumettre les informations du budget (catégorie, maximum, thème).
+ * @property {string | null} error - Message d'erreur à afficher, ou `null` si aucune erreur.
  */
 interface PopupProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ interface PopupProps {
     maximum: number;
     theme: string;
   }) => void;
+  error?: string | null;
 }
 
 /**
@@ -46,6 +48,7 @@ const BudgetPopup: React.FC<PopupProps> = ({
   onClose,
   budgetToEdit,
   onSubmit,
+  error,
 }) => {
   const budgetContext = useContext(BudgetContext);
   const budgets = budgetContext ? budgetContext.budgets : [];
@@ -159,6 +162,9 @@ const BudgetPopup: React.FC<PopupProps> = ({
             />
           </button>
         </div>
+
+        {/* Message d'erreur */}
+        {error && <p className="text-red-500 text-preset-4">{error}</p>}
 
         {/* Message explicatif */}
         <p className="text-preset-4 text-grey-500">

@@ -1,31 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import DoughnutChart from "@/ui/DoughnutChart";
-import { Budget } from "@/types";
-import axios from "axios";
+import { useBudget } from "@/context/BudgetContext";
 
 const Budgets: React.FC = () => {
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { budgets, isLoading, error } = useBudget();
 
-  // Fonction pour récupérer les budgets depuis l'API
-  const fetchBudgets = async () => {
-    try {
-      const response = await axios.get("/api/budgets");
-      setBudgets(response.data.budgets);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des budgets :", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="self-stretch h-[599px] flex justify-center items-center bg-white rounded-lg">
+        <p className="text-preset-4 text-grey-500">Chargement des budgets...</p>
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    fetchBudgets(); // Récupère les budgets lors du montage du composant
-  }, []);
+  if (error) {
+    return (
+      <div className="self-stretch h-[599px] flex justify-center items-center bg-white rounded-lg">
+        <p className="text-preset-4 text-red-500">{error}</p>
+      </div>
+    );
+  }
 
-  // Afficher un indicateur de chargement pendant la récupération des données
-  if (loading) {
-    return <p>Loading...</p>;
+  if (budgets.length === 0) {
+    return (
+      <div className="self-stretch h-[599px] flex justify-center items-center bg-white rounded-lg">
+        <p className="text-preset-4 text-grey-500">Aucun budget disponible</p>
+      </div>
+    );
   }
 
   // Calcul des dépenses et des limites

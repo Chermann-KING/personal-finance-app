@@ -3,7 +3,8 @@ import { Schema, model, models, Types, CallbackError } from "mongoose";
 // Définition du schéma Budget
 const budgetSchema = new Schema(
   {
-    category: { type: String, required: true, unique: true },
+    userId: { type: Types.ObjectId, ref: "User", required: true },
+    category: { type: String, required: true },
     maximum: { type: Number, required: true },
     spent: { type: Number, default: 0 }, // sera calculé dynamiquement
     remaining: { type: Number, default: 0 }, // sera calculé dynamiquement
@@ -18,6 +19,9 @@ const budgetSchema = new Schema(
   },
   { minimize: false } // Force la sauvegarde des champs vides
 );
+
+// Index composé pour assurer l'unicité de la catégorie par utilisateur
+budgetSchema.index({ userId: 1, category: 1 }, { unique: true });
 
 // Middleware pour calculer `spent` et `remaining` avant de sauvegarder un document
 budgetSchema.pre("save", async function (next) {

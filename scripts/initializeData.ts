@@ -6,6 +6,7 @@ import Budget from "../src/models/Budget";
 import { Pot } from "../src/models/Pot";
 import transactionsData from "../src/data/transactions.json";
 import financialData from "../src/data/financialData.json";
+import { Types } from "mongoose";
 
 // Charger les variables d'environnement
 dotenv.config({ path: ".env.local" });
@@ -16,59 +17,71 @@ async function initializeData() {
     await connectToDatabase();
     console.log("Connexion à MongoDB réussie.");
 
-    // Créer un utilisateur de test s'il n'existe pas
-    let testUser = await User.findOne({ email: "test@example.com" });
-    if (!testUser) {
-      testUser = await User.create({
-        name: "Test User",
-        email: "test@example.com",
-        password: "password123",
-        preferences: {
-          currency: "USD",
-          language: "en",
-          notifications: {
-            email: true,
-            push: true,
-          },
+    // Supprimer toutes les données existantes
+    await User.deleteMany({});
+    await Transaction.deleteMany({});
+    await Budget.deleteMany({});
+    await Pot.deleteMany({});
+    console.log("Données existantes supprimées.");
+
+    // Créer un utilisateur de test
+    const testUser = await User.create({
+      name: "Test User",
+      email: "test@example.com",
+      password: "password123",
+      preferences: {
+        currency: "USD",
+        language: "en",
+        notifications: {
+          email: true,
+          push: true,
         },
-      });
-      console.log("Utilisateur de test créé.");
-    }
+      },
+    });
+    console.log("Utilisateur de test créé.");
 
     // Insérer les transactions
-    const existingTransactions = await Transaction.find({
+    const transactionsWithUser = transactionsData.map((transaction) => ({
+      ...transaction,
       userId: testUser._id,
-    });
-    if (existingTransactions.length === 0) {
-      const transactionsWithUser = transactionsData.map((transaction) => ({
-        ...transaction,
-        userId: testUser._id,
-      }));
-      await Transaction.insertMany(transactionsWithUser);
-      console.log("Transactions insérées avec succès.");
-    }
+      date: new Date(transaction.date),
+    }));
+    const insertedTransactions = await Transaction.insertMany(
+      transactionsWithUser
+    );
+    console.log("Transactions insérées avec succès.");
 
-    // Insérer les budgets
-    const existingBudgets = await Budget.find({ userId: testUser._id });
-    if (existingBudgets.length === 0) {
-      const budgetsWithUser = financialData.budgets.map((budget) => ({
-        ...budget,
+    // Créer un map des transactions par catégorie
+    const transactionsByCategory = insertedTransactions.reduce<
+      Record<string, Types.ObjectId[]>
+    >((acc, transaction) => {
+      if (!acc[transaction.category]) {
+        acc[transaction.category] = [];
+      }
+      acc[transaction.category].push(transaction._id as Types.ObjectId);
+      return acc;
+    }, {});
+
+    // Insérer les budgets avec leurs transactions associées
+    const budgetsWithUserAndTransactions = financialData.budgets.map(
+      (budget) => ({
         userId: testUser._id,
-      }));
-      await Budget.insertMany(budgetsWithUser);
-      console.log("Budgets insérés avec succès.");
-    }
+        category: budget.category,
+        maximum: budget.maximum,
+        theme: budget.theme,
+        transactions: transactionsByCategory[budget.category] || [],
+      })
+    );
+    await Budget.insertMany(budgetsWithUserAndTransactions);
+    console.log("Budgets insérés avec succès.");
 
     // Insérer les pots d'épargne
-    const existingPots = await Pot.find({ userId: testUser._id });
-    if (existingPots.length === 0) {
-      const potsWithUser = financialData.pots.map((pot) => ({
-        ...pot,
-        userId: testUser._id,
-      }));
-      await Pot.insertMany(potsWithUser);
-      console.log("Pots d'épargne insérés avec succès.");
-    }
+    const potsWithUser = financialData.pots.map((pot) => ({
+      ...pot,
+      userId: testUser._id,
+    }));
+    await Pot.insertMany(potsWithUser);
+    console.log("Pots d'épargne insérés avec succès.");
 
     // Calculer et afficher les statistiques
     const balance = await Transaction.calculateBalance(testUser._id);
@@ -82,6 +95,18 @@ async function initializeData() {
       now
     );
     console.log("Statistiques par catégorie :", categoryStats);
+
+    // Vérifier que tout a été inséré correctement
+    const userCount = await User.countDocuments();
+    const transactionCount = await Transaction.countDocuments();
+    const budgetCount = await Budget.countDocuments();
+    const potCount = await Pot.countDocuments();
+
+    console.log("\nRésumé de l'initialisation :");
+    console.log(`- Utilisateurs : ${userCount}`);
+    console.log(`- Transactions : ${transactionCount}`);
+    console.log(`- Budgets : ${budgetCount}`);
+    console.log(`- Pots : ${potCount}`);
   } catch (error) {
     console.error("Erreur lors de l'initialisation des données :", error);
   } finally {
